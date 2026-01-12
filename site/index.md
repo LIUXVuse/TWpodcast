@@ -11,7 +11,10 @@ hero:
       link: "/summaries/"
     - theme: alt
       text: "檢視原始碼"
-      link: "https://github.com/your-username/your-repo"
+      link: "https://github.com/LIUXVuse/TWpodcast"
+    - theme: alt
+      text: "📢 TG 通知頻道"
+      link: "https://t.me/twpodcast"
 
 features:
   - icon: 🎙️
