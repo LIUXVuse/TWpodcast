@@ -81,7 +81,7 @@ whisper:
 ```yaml
 ollama:
   local:
-    primary_url: "http://192.168.1.103:11434"  # Windows 5090
+    primary_url: "http://YOUR_WINDOWS_IP:11434"  # 填入您的 Windows IP
     models:
       - "gemma3:27b"
   priority: ["local"]

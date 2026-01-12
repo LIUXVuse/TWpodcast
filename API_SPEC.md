@@ -27,7 +27,7 @@ Dashboard 提供 REST API 供前端或外部系統使用。
   },
   "ollama": {
     "local": {
-      "primary": { "url": "http://192.168.1.103:11434", "connected": true },
+      "primary": { "url": "http://YOUR_WINDOWS_IP:11434", "connected": true },
       "fallback": { "url": "http://localhost:11434", "connected": false }
     },
     "model": "gemma3:27b"
