@@ -2,13 +2,6 @@
 
 這裡依照節目分類，收錄了所有自動生成的 Podcast 摘要。
 
-## MacroMicro 財經M平方
-::: details 點擊展開集數列表 (3 集)
-- [EP298](/summaries/MacroMicro%20%E8%B2%A1%E7%B6%93M%E5%B9%B3%E6%96%B9EP298_summary.md)
-- [EP297](/summaries/MacroMicro%20%E8%B2%A1%E7%B6%93M%E5%B9%B3%E6%96%B9EP297_summary.md)
-- [EP296](/summaries/MacroMicro%20%E8%B2%A1%E7%B6%93M%E5%B9%B3%E6%96%B9EP296_summary.md)
-:::
-
 ## Money DJ
 ::: details 點擊展開集數列表 (5 集)
 - [EP464](/summaries/Money%20DJEP464_summary.md)
@@ -16,6 +9,15 @@
 - [EP462](/summaries/Money%20DJEP462_summary.md)
 - [EP461](/summaries/Money%20DJEP461_summary.md)
 - [EP460](/summaries/Money%20DJEP460_summary.md)
+:::
+
+## M平方
+::: details 點擊展開集數列表 (5 集)
+- [EP300](/summaries/M%E5%B9%B3%E6%96%B9EP300_summary.md)
+- [EP299](/summaries/M%E5%B9%B3%E6%96%B9EP299_summary.md)
+- [EP298](/summaries/M%E5%B9%B3%E6%96%B9EP298_summary.md)
+- [EP297](/summaries/M%E5%B9%B3%E6%96%B9EP297_summary.md)
+- [EP296](/summaries/M%E5%B9%B3%E6%96%B9EP296_summary.md)
 :::
 
 ## 股癌

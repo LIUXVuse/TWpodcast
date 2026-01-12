@@ -4,24 +4,6 @@
       "text": "節目列表",
       "items": [
         {
-          "text": "MacroMicro 財經M平方",
-          "collapsed": true,
-          "items": [
-            {
-              "text": "EP298",
-              "link": "/summaries/MacroMicro 財經M平方EP298_summary.md"
-            },
-            {
-              "text": "EP297",
-              "link": "/summaries/MacroMicro 財經M平方EP297_summary.md"
-            },
-            {
-              "text": "EP296",
-              "link": "/summaries/MacroMicro 財經M平方EP296_summary.md"
-            }
-          ]
-        },
-        {
           "text": "Money DJ",
           "collapsed": true,
           "items": [
@@ -44,6 +26,32 @@
             {
               "text": "EP460",
               "link": "/summaries/Money DJEP460_summary.md"
+            }
+          ]
+        },
+        {
+          "text": "M平方",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "EP300",
+              "link": "/summaries/M平方EP300_summary.md"
+            },
+            {
+              "text": "EP299",
+              "link": "/summaries/M平方EP299_summary.md"
+            },
+            {
+              "text": "EP298",
+              "link": "/summaries/M平方EP298_summary.md"
+            },
+            {
+              "text": "EP297",
+              "link": "/summaries/M平方EP297_summary.md"
+            },
+            {
+              "text": "EP296",
+              "link": "/summaries/M平方EP296_summary.md"
             }
           ]
         },

@@ -224,6 +224,9 @@ def watcher_thread():
                     watcher_status['processed_count'] += 1
                     add_log(f'   ✅ 已儲存：{summary_filename}', 'success')
                     
+                    # 計算 summary_name（用於 Git 和 Telegram）
+                    summary_name = summary_filename.replace('_summary.md', '')
+                    
                     # 自動推送到 Git
                     try:
                         git_pub = GitPublisher()
@@ -237,7 +240,6 @@ def watcher_thread():
                         add_log(f'   ⚠️ Git 錯誤：{str(ge)}', 'warning')
                     
                     # 推送到 Telegram（檢查開關和是否已廣播）
-                    summary_name = summary_filename.replace('_summary.md', '')
                     try:
                         global telegram_broadcast_enabled
                         telegram_config = load_telegram_config()
