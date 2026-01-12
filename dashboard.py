@@ -175,7 +175,29 @@ def watcher_thread():
                 feed_name = meta.get('feed_name', '')
                 ep_title = meta.get('title', '')
                 ep_date = meta.get('published', '')
-                ep_index = meta.get('index', stem)
+                ep_index = meta.get('index', None)
+                
+                # 智慧識別：如果沒有 metadata，嘗試從檔名 prefix 推斷
+                if not feed_name:
+                    # 嘗試解析檔名格式：PREFIX_EPXXX 或 EPXXX
+                    import re
+                    # 格式1: MM_EP301 → prefix=MM, index=301
+                    match_prefix = re.match(r'^([A-Za-z]+)_EP(\d+)$', stem)
+                    # 格式2: EP301 → prefix=None, index=301
+                    match_ep = re.match(r'^EP(\d+)$', stem)
+                    
+                    if match_prefix:
+                        prefix = match_prefix.group(1)
+                        ep_index = int(match_prefix.group(2))
+                        # 從 feeds 配置找對應的節目名稱
+                        for feed in feeds:
+                            if feed.get('prefix', '').upper() == prefix.upper():
+                                feed_name = feed.get('name', '')
+                                add_log(f'   🔍 從 prefix [{prefix}] 識別為：{feed_name}')
+                                break
+                    elif match_ep:
+                        ep_index = int(match_ep.group(1))
+                        add_log(f'   ⚠️ 無法識別節目（檔名只有 EP 編號），將使用原始檔名')
                 
                 # 計算預期的摘要檔名
                 if feed_name and isinstance(ep_index, int):
