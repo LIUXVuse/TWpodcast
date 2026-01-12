@@ -19,6 +19,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 from podcast_pipeline import PodcastPipeline
 from podcast_pipeline.telegram_notifier import TelegramNotifier
+from podcast_pipeline.git_publisher import GitPublisher
 from rss_downloader.parser import parse_rss
 
 app = Flask(__name__)
@@ -222,6 +223,18 @@ def watcher_thread():
                     processed.add(stem)
                     watcher_status['processed_count'] += 1
                     add_log(f'   ✅ 已儲存：{summary_filename}', 'success')
+                    
+                    # 自動推送到 Git
+                    try:
+                        git_pub = GitPublisher()
+                        if git_pub.enabled:
+                            git_result = git_pub.publish(summary_name, output)
+                            if git_result['success']:
+                                add_log(f'   🚀 Git 已推送', 'success')
+                            else:
+                                add_log(f'   ⚠️ Git 推送：{git_result["message"]}', 'warning')
+                    except Exception as ge:
+                        add_log(f'   ⚠️ Git 錯誤：{str(ge)}', 'warning')
                     
                     # 推送到 Telegram（檢查開關和是否已廣播）
                     summary_name = summary_filename.replace('_summary.md', '')
