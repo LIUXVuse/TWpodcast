@@ -1,0 +1,36 @@
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.log
+
+# Node / VitePress
+node_modules/
+site/node_modules/
+site/.vitepress/dist/
+site/.vitepress/cache/
+
+# Project Specific
+*.mp3
+*.wav
+*.m4a
+# Ignore the SQLite DB if it changes often and isn't needed for the site build
+# But user said "don't touch automation", so maybe keeping it safe is better?
+# Usually local DBs are ignored, but I'll ignore it to be safe from conflicts.
+*.db
+*.sqlite
+
+# Keep data/summaries
+!data/summaries/
+
+# Secrets
+.env

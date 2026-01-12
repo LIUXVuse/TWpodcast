@@ -1,0 +1,19 @@
+{
+    "name": "rsspodcast-site",
+    "version": "1.0.0",
+    "description": "Static site for podcast summaries",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vitepress dev",
+        "build": "vitepress build",
+        "preview": "vitepress preview",
+        "sync": "node scripts/sync-content.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "vitepress": "^1.0.0-rc.31",
+        "vue": "^3.4.0"
+    }
+}

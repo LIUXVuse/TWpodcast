@@ -1,0 +1,51 @@
+# Podcast Pipeline 服務設定
+
+# Windows Whisper 設定（透過 SMB 掛載）
+whisper:
+  # Mac 端的 SMB 掛載路徑（正確路徑）
+  input_dir: "/Volumes/whisper/whisper.cpp/input"
+  output_dir: "/Volumes/whisper/whisper.cpp/output"
+  # 輸出檔案後綴
+  output_suffix: "_tw.txt"
+  # 等待轉錄完成的超時時間（秒）
+  timeout: 7200  # 2 小時
+
+# Ollama LLM 設定
+ollama:
+  # 只使用本地 Gemma 3 27B（Windows 5090）
+  
+  # 本地模型（Windows 5090）
+  local:
+    # Windows 5090 IP
+    primary_url: "http://192.168.1.103:11434"
+    # Mac 本地備用
+    fallback_url: "http://localhost:11434"
+    # 只使用 Gemma3
+    models:
+      - "gemma3:27b"
+  
+  # Ollama Cloud 設定（已停用）
+  cloud:
+    enabled: false
+    url: "https://api.ollama.com/v1"
+    model: "deepseek-v3.1:671b-cloud"
+    api_key: ""
+
+  # 使用優先順序
+  priority: ["local"]
+
+# Telegram 設定
+telegram:
+  enabled: true
+  # 從 @BotFather 取得
+  bot_token: "7985946352:AAGbVk_IDSDpf91n3wjyOBz8Ai-CqK5KWZ4"
+  # 發送到頻道 @twpodcast
+  chat_id: "@twpodcast"
+
+# Git 網頁更新設定（待填寫）
+git_publish:
+  enabled: false
+  repo_path: ""
+  output_dir: "public/doc"
+  auto_commit: true
+  commit_message: "📝 新增 Podcast 摘要：{episode_name}"

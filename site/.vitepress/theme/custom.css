@@ -1,0 +1,10 @@
+/* .vitepress/theme/custom.css */
+:root {
+  --vp-c-brand: #646cff; /* Example: adjust to your preference */
+  --vp-c-brand-light: #747bff;
+}
+
+/* Add any custom styles here to make it look "Premium" */
+html.dark {
+    /* Refine dark mode colors if needed */
+}

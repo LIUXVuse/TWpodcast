@@ -1,0 +1,109 @@
+{
+  "/summaries/": [
+    {
+      "text": "節目列表",
+      "items": [
+        {
+          "text": "MacroMicro 財經M平方",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "EP298",
+              "link": "/summaries/MacroMicro 財經M平方EP298_summary.md"
+            },
+            {
+              "text": "EP297",
+              "link": "/summaries/MacroMicro 財經M平方EP297_summary.md"
+            },
+            {
+              "text": "EP296",
+              "link": "/summaries/MacroMicro 財經M平方EP296_summary.md"
+            }
+          ]
+        },
+        {
+          "text": "Money DJ",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "EP464",
+              "link": "/summaries/Money DJEP464_summary.md"
+            },
+            {
+              "text": "EP463",
+              "link": "/summaries/Money DJEP463_summary.md"
+            },
+            {
+              "text": "EP462",
+              "link": "/summaries/Money DJEP462_summary.md"
+            },
+            {
+              "text": "EP461",
+              "link": "/summaries/Money DJEP461_summary.md"
+            },
+            {
+              "text": "EP460",
+              "link": "/summaries/Money DJEP460_summary.md"
+            }
+          ]
+        },
+        {
+          "text": "股癌",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "EP626",
+              "link": "/summaries/股癌EP626_summary.md"
+            },
+            {
+              "text": "EP625",
+              "link": "/summaries/股癌EP625_summary.md"
+            },
+            {
+              "text": "EP624",
+              "link": "/summaries/股癌EP624_summary.md"
+            },
+            {
+              "text": "EP623",
+              "link": "/summaries/股癌EP623_summary.md"
+            },
+            {
+              "text": "EP622",
+              "link": "/summaries/股癌EP622_summary.md"
+            }
+          ]
+        },
+        {
+          "text": "財報狗",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "EP590",
+              "link": "/summaries/財報狗EP590_summary.md"
+            },
+            {
+              "text": "EP589",
+              "link": "/summaries/財報狗EP589_summary.md"
+            },
+            {
+              "text": "EP588",
+              "link": "/summaries/財報狗EP588_summary.md"
+            },
+            {
+              "text": "EP587",
+              "link": "/summaries/財報狗EP587_summary.md"
+            },
+            {
+              "text": "EP586",
+              "link": "/summaries/財報狗EP586_summary.md"
+            },
+            {
+              "text": "EP585",
+              "link": "/summaries/財報狗EP585_summary.md"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

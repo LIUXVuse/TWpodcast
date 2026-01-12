@@ -1,0 +1,26 @@
+download:
+  auto_cleanup: false
+  default_path: ~/Downloads/Podcasts
+  keep_recent: 10
+feeds:
+- enabled: true
+  name: 財報狗
+  prefix: CFG
+  template: cfg_financial_dog
+  url: https://feed.firstory.me/rss/user/clcftm46z000201z45w1c47fi
+- enabled: true
+  name: Money DJ
+  prefix: MDJ
+  template: mdj_money_dj
+  url: https://feeds.soundon.fm/podcasts/489a6945-a341-40ca-88ab-73c174057634.xml
+- enabled: true
+  name: 股癌
+  prefix: GY
+  template: gooaye
+  url: https://feeds.soundon.fm/podcasts/954689a5-3096-43a4-a80b-7810b219cef3.xml
+- enabled: true
+  filename_pattern: EP{index:03d}
+  name: M平方
+  prefix: MM
+  template: stock_analysis
+  url: https://feeds.soundon.fm/podcasts/d2aab16c-3a70-4023-b52b-e50f07852ecd.xml

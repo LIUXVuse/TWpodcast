@@ -1,0 +1,13 @@
+# RSS 解析與下載
+feedparser>=6.0.0
+requests>=2.28.0
+tqdm>=4.64.0
+flask>=3.0.0
+
+# Podcast Pipeline
+pyyaml>=6.0              # YAML 設定檔
+aiohttp>=3.9.0           # 非同步 HTTP（備用）
+
+# 未來擴展（先註解）
+# python-telegram-bot>=20.0  # Telegram Bot API
+# apscheduler>=3.10.0        # 排程器

@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "times": [
+    "07:30",
+    "21:00"
+  ],
+  "max_episodes": 3
+}

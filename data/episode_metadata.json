@@ -1,0 +1,198 @@
+{
+  "EP463": {
+    "feed_name": "MoneyDJ財經新聞",
+    "index": 463,
+    "title": "DJ有事嗎 | Ep.233 2026開紅盤 重量級活動登場",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/f193d5b7-fd84-49cc-aa18-c5a4fb68a7ff/rssFileVip.mp3?timestamp=1767383912306"
+  },
+  "EP464": {
+    "feed_name": "MoneyDJ財經新聞",
+    "index": 464,
+    "title": "DJ有事嗎 | Ep.234 多頭急又快 全球股市添變數?",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/28e00dc5-ac1c-45ee-84e8-98020c142268/rssFileVip.mp3?timestamp=1767989376886"
+  },
+  "CFG_EP585": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 585,
+    "title": "494.【達人聊產業】HVDC 來臨，AI、儲能 & 電動車 ft. 松川吳頌仁副董事長",
+    "published": "2025-12-14",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmj5t0pn9001501sw1p2k9j0y/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmj5t0pn9001601swbz5905ol.mp3?v=1767521212678"
+  },
+  "CFG_EP586": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 586,
+    "title": "495.【財經時事放大鏡】通電！排除AI資料中心的一切阻礙",
+    "published": "2025-12-18",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmjbmuh4c000501xi3m2r3gn3/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmjbmuh4c000601xi4csn5qqk.mp3?v=1767434685443"
+  },
+  "CFG_EP587": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 587,
+    "title": "496.【財經時事放大鏡】太空 x 2025 LLM發展 x Groq",
+    "published": "2025-12-25",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmjlkmpx4000801vx6fmy4poi/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmjlkmpx4000901vxb4lq2zys.mp3?v=1767348314889"
+  },
+  "MDJ_EP460": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 460,
+    "title": "Ep.226 漲價三本柱 被動元件明年變主動？",
+    "published": "2025-12-22",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/efb639b6-1fdd-45d3-8e0a-937e15b441f6/rssFileVip.mp3?timestamp=1766519900359"
+  },
+  "CFG_EP588": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 588,
+    "title": "497.【台股美股提款機】NAND Flash 產業前瞻：2026 年機會與風險盤點",
+    "published": "2025-12-28",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmjpsz22700gc01yg9asph9wq/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmjpsz22700gd01yg48zs6h0l.mp3?v=1767261919739"
+  },
+  "MDJ_EP461": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 461,
+    "title": "DJ有事嗎 | Ep.232 2025歲末尾聲，2026關注台美哪些焦點行情？",
+    "published": "2025-12-25",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/2397689d-9d1e-4366-ada3-15b9411b3ba3/rssFileVip.mp3?timestamp=1767167935229"
+  },
+  "MDJ_EP462": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 462,
+    "title": "Ep.227 明年拚翻轉 被動元件誰出線?",
+    "published": "2025-12-29",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/b5645185-0bf9-4a64-b9a3-fc825592c7f8/rssFileVip.mp3?timestamp=1767124666048"
+  },
+  "MDJ_EP463": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 463,
+    "title": "DJ有事嗎 | Ep.233 2026開紅盤 重量級活動登場",
+    "published": "2026-01-01",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/f193d5b7-fd84-49cc-aa18-c5a4fb68a7ff/rssFileVip.mp3?timestamp=1767383912306"
+  },
+  "MDJ_EP589": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 589,
+    "title": "498.【財經時事放大鏡】NVIDIA x AMD x AI 模型經濟學",
+    "published": "2026-01-08",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmk5k7l2x00wn01va4uk9645t/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmk5k7l2x00wo01va9q826tg4.mp3?v=1767953417589"
+  },
+  "MDJ_EP464": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 464,
+    "title": "DJ有事嗎 | Ep.234 多頭急又快 全球股市添變數?",
+    "published": "2026-01-08",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/28e00dc5-ac1c-45ee-84e8-98020c142268/rssFileVip.mp3?timestamp=1767989376886"
+  },
+  "CFG_EP589": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 589,
+    "title": "498.【財經時事放大鏡】NVIDIA x AMD x AI 模型經濟學",
+    "published": "2026-01-08",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmk5k7l2x00wn01va4uk9645t/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmk5k7l2x00wo01va9q826tg4.mp3?v=1767953417589"
+  },
+  "EP622": {
+    "feed_name": "股癌",
+    "feed_prefix": "",
+    "index": 622,
+    "title": "EP622 | 🕯️",
+    "published": "2025-12-27",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/522d30b4-28a0-4a0c-b9bd-66e3850c81a0/rssFileVip.mp3?timestamp=1766872667267"
+  },
+  "EP623": {
+    "feed_name": "股癌",
+    "feed_prefix": "",
+    "index": 623,
+    "title": "EP623 | 🎆",
+    "published": "2025-12-31",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/ffd2fce6-176a-451f-9e31-7efd9f599bf1/rssFileVip.mp3?timestamp=1767217721606"
+  },
+  "EP624": {
+    "feed_name": "股癌",
+    "feed_prefix": "",
+    "index": 624,
+    "title": "EP624 | 🎥",
+    "published": "2026-01-03",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/4aa630cc-3488-4548-b79c-f2fe15e0ae79/rssFileVip.mp3?timestamp=1767477323186"
+  },
+  "EP625": {
+    "feed_name": "股癌",
+    "feed_prefix": "",
+    "index": 625,
+    "title": "EP625 | 🧸",
+    "published": "2026-01-07",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6cb85fec-a93a-40c6-8d38-1ce2d60b23c9/rssFileVip.mp3?timestamp=1767821980317"
+  },
+  "EP626": {
+    "feed_name": "股癌",
+    "feed_prefix": "",
+    "index": 626,
+    "title": "EP626 | 🕷️",
+    "published": "2026-01-10",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6eb11ce2-9ec6-449e-8bcf-ca8ce1f8ab34/rssFileVip.mp3?timestamp=1768083958668"
+  },
+  "CFG_EP590": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 590,
+    "title": "499.【達人聊產業】廣運寓創新於永續哲學：散熱與機器人 ft. 謝明凱董事長",
+    "published": "2026-01-11",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmk9vwb2f015b01w2b1rbcvxe/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmk9vwb2g015c01w20dvwd03g.mp3?v=1768145131456"
+  },
+  "GY_EP626": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 626,
+    "title": "EP626 | 🕷️",
+    "published": "2026-01-10",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6eb11ce2-9ec6-449e-8bcf-ca8ce1f8ab34/rssFileVip.mp3?timestamp=1768083958668"
+  },
+  "GY_EP625": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 625,
+    "title": "EP625 | 🧸",
+    "published": "2026-01-07",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6cb85fec-a93a-40c6-8d38-1ce2d60b23c9/rssFileVip.mp3?timestamp=1767821980317"
+  },
+  "GY_EP624": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 624,
+    "title": "EP624 | 🎥",
+    "published": "2026-01-03",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/4aa630cc-3488-4548-b79c-f2fe15e0ae79/rssFileVip.mp3?timestamp=1767477323186"
+  },
+  "EP296": {
+    "feed_name": "MacroMicro 財經M平方",
+    "feed_prefix": "",
+    "index": 296,
+    "title": "十週年特輯｜專訪王伯達 - 2026 資金走向，AI 泡沫會發生嗎？",
+    "published": "2025-12-20",
+    "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/5414f27d-e175-4741-8a55-1a6b872fdbbc/rssFileVip.mp3?timestamp=1766272966434"
+  },
+  "EP297": {
+    "feed_name": "MacroMicro 財經M平方",
+    "feed_prefix": "",
+    "index": 297,
+    "title": "十週年特輯｜新手請進，長線投資用總經其實不難",
+    "published": "2025-12-23",
+    "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/63e556db-e16c-4df0-af3f-c2da50bdbdd8/rssFileVip.mp3?timestamp=1766533663520"
+  },
+  "EP298": {
+    "feed_name": "MacroMicro 財經M平方",
+    "feed_prefix": "",
+    "index": 298,
+    "title": "After Meeting EP. 181｜AI 瓶頸就是電力，佈局機會來了嗎？",
+    "published": "2025-12-27",
+    "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/8361f1c0-2853-447e-8bdd-78059ab2d0e4/rssFileVip.mp3?timestamp=1766880524065"
+  }
+}
