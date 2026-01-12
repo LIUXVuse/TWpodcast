@@ -1,4 +1,5 @@
 # Podcast Pipeline 服務設定
+# 此為範例檔案，請複製為 services.yaml 並填入您的設定
 
 # Windows Whisper 設定（透過 SMB 掛載）
 whisper:
@@ -16,8 +17,8 @@ ollama:
   
   # 本地模型（Windows 5090）
   local:
-    # Windows 5090 IP
-    primary_url: "http://192.168.1.103:11434"
+    # Windows 5090 IP (請修改為您的 Windows IP)
+    primary_url: "http://192.168.1.xxx:11434"
     # Mac 本地備用
     fallback_url: "http://localhost:11434"
     # 只使用 Gemma3
@@ -37,9 +38,9 @@ ollama:
 # Telegram 設定
 telegram:
   enabled: true
-  # 從 @BotFather 取得
-  bot_token: "7985946352:AAGbVk_IDSDpf91n3wjyOBz8Ai-CqK5KWZ4"
-  # 發送到頻道 @twpodcast
+  # 從 @BotFather 取得 (請填入 Token)
+  bot_token: "YOUR_BOT_TOKEN_HERE"
+  # 發送到頻道 @twpodcast (或您的 Chat ID)
   chat_id: "@twpodcast"
 
 # Git 網頁更新設定（待填寫）

@@ -34,3 +34,4 @@ site/.vitepress/cache/
 
 # Secrets
 .env
+config/services.yaml
