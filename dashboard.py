@@ -234,6 +234,32 @@ def watcher_thread():
                             git_result = git_pub.publish(summary_name, output)
                             if git_result['success']:
                                 add_log(f'   🚀 Git 已推送', 'success')
+                                # 自動同步網站並再次推送
+                                try:
+                                    site_script = Path(__file__).parent / 'site' / 'scripts' / 'sync-content.js'
+                                    if site_script.exists():
+                                        import subprocess
+                                        sync_result = subprocess.run(
+                                            ['node', str(site_script)],
+                                            cwd=Path(__file__).parent,
+                                            capture_output=True,
+                                            text=True,
+                                            timeout=30
+                                        )
+                                        if sync_result.returncode == 0:
+                                            add_log(f'   📦 網站目錄已同步', 'success')
+                                            # 再次推送網站變更
+                                            git_pub._run_git('add', 'site/')
+                                            git_pub._run_git('commit', '-m', f'🌐 同步網站目錄：{summary_name}')
+                                            push_ok, push_msg = git_pub._run_git('push')
+                                            if push_ok:
+                                                add_log(f'   🌐 網站已更新', 'success')
+                                            else:
+                                                add_log(f'   ⚠️ 網站推送失敗', 'warning')
+                                        else:
+                                            add_log(f'   ⚠️ 網站同步失敗', 'warning')
+                                except Exception as se:
+                                    add_log(f'   ⚠️ 網站同步錯誤：{str(se)}', 'warning')
                             else:
                                 add_log(f'   ⚠️ Git 推送：{git_result["message"]}', 'warning')
                     except Exception as ge:
