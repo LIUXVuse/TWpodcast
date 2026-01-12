@@ -5,6 +5,8 @@
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey.svg)
 
+🌐 **線上摘要庫**：[https://liuxvuse.github.io/TWpodcast/summaries/](https://liuxvuse.github.io/TWpodcast/summaries/)
+
 ## ✨ 功能
 
 | 功能 | 說明 |
