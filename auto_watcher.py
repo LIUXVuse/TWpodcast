@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
 """
-🔄 Podcast 自動監控器
+🔄 Podcast 自動監控器 v3.0
 
 功能：
-- 監控 Whisper output 資料夾
-- 當新的逐字稿出現時，自動用 Ollama 生成摘要
-- 同時輸出潤稿後的逐字稿到 site/transcripts
+- 掃描 Whisper output 資料夾
+- 智慧判斷：缺逐字稿補逐字稿、缺摘要補摘要
 - 自動更新 sidebar.json
-- 可設定監控間隔和檔名過濾
 
 使用方法：
-    # 處理所有逐字稿
+    # 處理所有逐字稿（缺啥補啥）
+    python auto_watcher.py --once
+    
+    # 持續監控
     python auto_watcher.py
-    
-    # 只處理 EP 開頭的（財報狗）
-    python auto_watcher.py --prefix EP
-    
-    # 只處理 S3EP 開頭的（另一個節目）
-    python auto_watcher.py --prefix S3EP
-    
-    # 指定監控間隔（秒）
-    python auto_watcher.py --prefix EP --interval 30
 """
 
 import sys
@@ -35,33 +27,86 @@ sys.path.insert(0, str(Path(__file__).parent))
 from podcast_pipeline import PodcastPipeline
 
 
+# Whisper 檔名前綴對應到節目名稱
+PREFIX_TO_PROGRAM = {
+    "CFG": "財報狗",
+    "MDJ": "Money DJ",
+    "GY": "股癌",
+    "MM": "M平方",
+}
+
+# 無前綴時，根據 EP 編號範圍判斷
+def guess_program_from_ep(ep_num: int) -> str:
+    """根據 EP 編號猜測節目（當沒有前綴時）"""
+    if 290 <= ep_num <= 310:  # M平方
+        return "M平方"
+    elif 620 <= ep_num <= 640:  # 股癌
+        return "股癌"
+    elif 580 <= ep_num <= 600:  # 財報狗
+        return "財報狗"
+    elif 460 <= ep_num <= 470:  # Money DJ
+        return "Money DJ"
+    return ""
+
+
+def parse_whisper_filename(filename: str) -> dict:
+    """解析 Whisper 逐字稿檔名"""
+    stem = filename.replace("_tw.txt", "").replace("_tw", "")
+    
+    # 嘗試匹配有前綴的格式: CFG_EP585, MDJ_EP460, GY_EP627
+    match = re.match(r"^([A-Z]+)_EP(\d+)$", stem)
+    if match:
+        prefix = match.group(1)
+        ep_num = int(match.group(2))
+        program = PREFIX_TO_PROGRAM.get(prefix, "")
+        return {
+            "stem": stem,
+            "prefix": prefix,
+            "ep_num": ep_num,
+            "program": program,
+            "canonical_name": f"{program}EP{ep_num}" if program else stem
+        }
+    
+    # 嘗試匹配無前綴的格式: EP296
+    match = re.match(r"^EP(\d+)$", stem)
+    if match:
+        ep_num = int(match.group(1))
+        program = guess_program_from_ep(ep_num)
+        return {
+            "stem": stem,
+            "prefix": "",
+            "ep_num": ep_num,
+            "program": program,
+            "canonical_name": f"{program}EP{ep_num}" if program else stem
+        }
+    
+    # 其他格式，直接用原名
+    return {
+        "stem": stem,
+        "prefix": "",
+        "ep_num": 0,
+        "program": "",
+        "canonical_name": stem
+    }
+
+
 def update_sidebar(site_dir: Path, summaries_dir: Path, transcripts_dir: Path):
     """更新 sidebar.json"""
     sidebar_path = site_dir / ".vitepress" / "sidebar.json"
     
-    # 節目名稱對應
-    program_patterns = {
-        "Money DJ": r"^Money DJ",
-        "M平方": r"^M平方",
-        "股癌": r"^股癌",
-        "財報狗": r"^財報狗"
-    }
+    program_names = ["Money DJ", "M平方", "股癌", "財報狗"]
     
-    # 收集摘要和逐字稿
-    summaries = {}
-    transcripts = {}
-    
-    for prog_name in program_patterns:
-        summaries[prog_name] = []
-        transcripts[prog_name] = []
+    summaries = {p: [] for p in program_names}
+    transcripts = {p: [] for p in program_names}
     
     # 掃描摘要
     for f in sorted(summaries_dir.glob("*_summary.md"), reverse=True):
-        for prog_name, pattern in program_patterns.items():
-            if re.match(pattern, f.stem.replace("_summary", "")):
-                ep_match = re.search(r"EP(\d+)", f.stem)
+        name = f.stem.replace("_summary", "")
+        for prog in program_names:
+            if name.startswith(prog.replace(" ", "")):
+                ep_match = re.search(r"EP(\d+)", name)
                 if ep_match:
-                    summaries[prog_name].append({
+                    summaries[prog].append({
                         "text": f"EP{ep_match.group(1)}",
                         "link": f"/summaries/{f.name}"
                     })
@@ -69,163 +114,189 @@ def update_sidebar(site_dir: Path, summaries_dir: Path, transcripts_dir: Path):
     
     # 掃描逐字稿
     for f in sorted(transcripts_dir.glob("*_transcript.md"), reverse=True):
-        for prog_name, pattern in program_patterns.items():
-            if re.match(pattern, f.stem.replace("_transcript", "")):
-                ep_match = re.search(r"EP(\d+)", f.stem)
+        name = f.stem.replace("_transcript", "")
+        for prog in program_names:
+            if name.startswith(prog.replace(" ", "")):
+                ep_match = re.search(r"EP(\d+)", name)
                 if ep_match:
-                    transcripts[prog_name].append({
+                    transcripts[prog].append({
                         "text": f"EP{ep_match.group(1)}",
                         "link": f"/transcripts/{f.name}"
                     })
                 break
     
-    # 建立 sidebar 結構
     sidebar = {
         "/summaries/": [{
             "text": "節目列表",
-            "items": [
-                {"text": prog_name, "collapsed": True, "items": summaries.get(prog_name, [])}
-                for prog_name in program_patterns.keys()
-            ]
+            "items": [{"text": p, "collapsed": True, "items": summaries[p]} for p in program_names]
         }],
         "/transcripts/": [{
             "text": "逐字稿列表",
-            "items": [
-                {"text": prog_name, "collapsed": True, "items": transcripts.get(prog_name, [])}
-                for prog_name in program_patterns.keys()
-            ]
+            "items": [{"text": p, "collapsed": True, "items": transcripts[p]} for p in program_names]
         }]
     }
     
     sidebar_path.write_text(json.dumps(sidebar, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f"   📋 sidebar.json 已更新")
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Podcast 自動監控器')
-    parser.add_argument('--interval', type=int, default=30, help='監控間隔（秒）')
+    parser = argparse.ArgumentParser(description='Podcast 自動監控器 v3.0')
+    parser.add_argument('--interval', type=int, default=60, help='監控間隔（秒）')
     parser.add_argument('--template', default='stock_analysis', help='摘要模板')
-    parser.add_argument('--once', action='store_true', help='只執行一次（不持續監控）')
-    parser.add_argument('--prefix', default='', help='檔名前綴過濾（如 EP 或 S3EP）')
+    parser.add_argument('--once', action='store_true', help='只執行一次')
     args = parser.parse_args()
     
     print("""
 ╔════════════════════════════════════════════════════════════╗
-║           🔄 Podcast 自動監控器 v2.0                        ║
-║           (含逐字稿輸出與 sidebar 更新)                      ║
+║           🔄 Podcast 自動監控器 v3.0                        ║
+║           (缺啥補啥 智慧版)                                  ║
 ╚════════════════════════════════════════════════════════════╝
 """)
     
     pipeline = PodcastPipeline()
     
-    # 檢查連接
     if not pipeline.whisper.is_connected():
         print("❌ 無法連接 Whisper 資料夾！")
-        print(f"   請確認 {pipeline.whisper.output_dir} 已掛載")
         return
     
-    print(f"📂 監控目錄：{pipeline.whisper.output_dir}")
-    print(f"📋 使用模板：{args.template}")
-    print(f"⏱️  監控間隔：{args.interval} 秒")
-    if args.prefix:
-        print(f"🔍 檔名過濾：只處理 {args.prefix}* 開頭的檔案")
-    print(f"{'─'*50}")
-    
-    # 記錄已處理的檔案
-    processed = set()
     summaries_dir = pipeline.summaries_dir
     site_summaries_dir = pipeline.site_summaries_dir
     site_transcripts_dir = pipeline.site_transcripts_dir
     
-    # 載入已存在的摘要（避免重複處理）
-    for f in summaries_dir.glob('*_summary.md'):
-        stem = f.stem.replace('_summary', '')
-        processed.add(stem)
+    print(f"📂 監控目錄：{pipeline.whisper.output_dir}")
+    print(f"{'─'*50}")
     
-    print(f"📝 已有 {len(processed)} 個摘要")
+    # 收集現有的摘要和逐字稿（用 canonical_name）
+    existing_summaries = set()
+    existing_transcripts = set()
+    
+    for f in summaries_dir.glob("*_summary.md"):
+        name = f.stem.replace("_summary", "")
+        existing_summaries.add(name)
+    
+    for f in site_transcripts_dir.glob("*_transcript.md"):
+        name = f.stem.replace("_transcript", "")
+        existing_transcripts.add(name)
+    
+    print(f"📝 現有摘要：{len(existing_summaries)} 個")
+    print(f"📄 現有逐字稿：{len(existing_transcripts)} 個")
     print(f"{'─'*50}\n")
     
     while True:
         now = datetime.now().strftime('%H:%M:%S')
         
-        # 掃描 output 資料夾
-        transcripts = list(pipeline.whisper.output_dir.glob('*_tw.txt'))
+        # 掃描 Whisper output
+        whisper_files = list(pipeline.whisper.output_dir.glob('*_tw.txt'))
         
-        new_count = 0
-        for transcript_path in transcripts:
-            stem = transcript_path.stem.replace('_tw', '')
+        need_transcript = []
+        need_summary = []
+        
+        for wf in whisper_files:
+            info = parse_whisper_filename(wf.name)
+            canonical = info["canonical_name"]
             
-            # 前綴過濾
-            if args.prefix and not stem.startswith(args.prefix):
-                continue
+            # 檢查缺什麼
+            has_summary = canonical in existing_summaries
+            has_transcript = canonical in existing_transcripts
             
-            if stem in processed:
-                continue
+            if not has_transcript:
+                need_transcript.append((wf, info))
+            if not has_summary:
+                need_summary.append((wf, info))
+        
+        # 統計
+        total_tasks = len([x for x in need_transcript if x not in [(nf, ni) for nf, ni in need_summary]]) + len(need_summary)
+        
+        if need_transcript or need_summary:
+            print(f"\n[{now}] 📊 狀態：")
+            print(f"   需補逐字稿：{len(need_transcript)} 個")
+            print(f"   需補摘要：{len(need_summary)} 個")
+        
+        # 處理需要補的項目
+        processed_count = 0
+        
+        for wf, info in need_transcript:
+            canonical = info["canonical_name"]
+            has_summary = canonical in existing_summaries
             
-            new_count += 1
-            print(f"\n[{now}] 🆕 發現新逐字稿：{transcript_path.name}")
+            print(f"\n[{now}] 📄 處理：{wf.name} → {canonical}")
             
             # 讀取逐字稿
-            transcript = transcript_path.read_text(encoding='utf-8')
+            transcript = wf.read_text(encoding='utf-8')
             print(f"   📄 逐字稿長度：{len(transcript)} 字")
             
-            # 生成摘要
-            print(f"   🤖 生成摘要中（使用 {args.template} 模板）...")
-            
-            result = pipeline.summarizer.process(
-                transcript=transcript,
-                episode_title=stem,
-                template_name=args.template
-            )
-            
-            if result.success:
-                # 儲存摘要到 data 目錄
-                output_path = summaries_dir / f"{stem}_summary.md"
-                output_path.write_text(result.summary, encoding='utf-8')
+            if has_summary:
+                # 只需要補逐字稿（只跑潤稿）
+                print(f"   ✅ 已有摘要，只補潤稿逐字稿...")
                 
-                # 從 stem 推斷節目名稱
-                podcast_name = ""
-                for name in ["Money DJ", "M平方", "股癌", "財報狗"]:
-                    if stem.startswith(name.replace(" ", "")):
-                        podcast_name = name
-                        break
+                polish_result = pipeline.summarizer.polish_transcript(transcript, args.template)
                 
-                # 儲存摘要到 site 目錄（包含 frontmatter）
-                site_summary = pipeline._add_frontmatter_to_summary(
-                    result.summary,
-                    stem,
-                    podcast_name,
-                    "",  # 音訊 URL 未知
-                    stem
-                )
-                site_summary_path = site_summaries_dir / f"{stem}_summary.md"
-                site_summary_path.write_text(site_summary, encoding='utf-8')
-                
-                # 儲存潤稿逐字稿
-                if result.polished_transcript:
+                if polish_result.success:
+                    polished = polish_result.content
                     transcript_md = pipeline.summarizer.format_transcript_for_display(
-                        result.polished_transcript,
-                        stem,
-                        podcast_name,
-                        ""  # 音訊 URL 未知
+                        polished,
+                        canonical,
+                        info["program"],
+                        ""
                     )
-                    transcript_path = site_transcripts_dir / f"{stem}_transcript.md"
+                    transcript_path = site_transcripts_dir / f"{canonical}_transcript.md"
                     transcript_path.write_text(transcript_md, encoding='utf-8')
+                    existing_transcripts.add(canonical)
                     print(f"   ✅ 逐字稿已儲存：{transcript_path.name}")
-                
-                # 更新 sidebar
-                update_sidebar(pipeline.site_dir, site_summaries_dir, site_transcripts_dir)
-                
-                print(f"   ✅ 摘要已儲存：{output_path.name}")
-                processed.add(stem)
+                else:
+                    print(f"   ❌ 潤稿失敗：{polish_result.error}")
             else:
-                print(f"   ❌ 摘要生成失敗：{result.error}")
+                # 需要跑完整流程（潤稿 + 摘要）
+                print(f"   🤖 完整處理（潤稿 + 摘要）...")
+                
+                result = pipeline.summarizer.process(
+                    transcript=transcript,
+                    episode_title=canonical,
+                    template_name=args.template
+                )
+                
+                if result.success:
+                    # 儲存摘要
+                    summary_path = summaries_dir / f"{canonical}_summary.md"
+                    summary_path.write_text(result.summary, encoding='utf-8')
+                    existing_summaries.add(canonical)
+                    
+                    # 儲存摘要到 site（含 frontmatter）
+                    site_summary = pipeline._add_frontmatter_to_summary(
+                        result.summary, canonical, info["program"], "", canonical
+                    )
+                    site_summary_path = site_summaries_dir / f"{canonical}_summary.md"
+                    site_summary_path.write_text(site_summary, encoding='utf-8')
+                    
+                    # 儲存逐字稿
+                    if result.polished_transcript:
+                        transcript_md = pipeline.summarizer.format_transcript_for_display(
+                            result.polished_transcript,
+                            canonical,
+                            info["program"],
+                            ""
+                        )
+                        transcript_path = site_transcripts_dir / f"{canonical}_transcript.md"
+                        transcript_path.write_text(transcript_md, encoding='utf-8')
+                        existing_transcripts.add(canonical)
+                        print(f"   ✅ 逐字稿已儲存：{transcript_path.name}")
+                    
+                    print(f"   ✅ 摘要已儲存：{summary_path.name}")
+                else:
+                    print(f"   ❌ 處理失敗：{result.error}")
+            
+            processed_count += 1
         
-        if new_count == 0:
-            print(f"[{now}] 😴 沒有新的逐字稿，等待 {args.interval} 秒...", end='\r')
+        if processed_count > 0:
+            # 更新 sidebar
+            update_sidebar(pipeline.site_dir, site_summaries_dir, site_transcripts_dir)
+            print(f"\n   📋 sidebar.json 已更新")
+        
+        if not need_transcript and not need_summary:
+            print(f"[{now}] ✅ 全部完成！沒有缺漏的項目", end='\r')
         
         if args.once:
-            print(f"\n\n✅ 單次執行完成！共處理 {new_count} 個新逐字稿")
+            print(f"\n\n✅ 單次執行完成！處理了 {processed_count} 個項目")
             break
         
         time.sleep(args.interval)
@@ -236,4 +307,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n\n👋 監控已停止")
-

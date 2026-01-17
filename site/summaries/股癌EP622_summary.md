@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/522d30b4-28a0-4a0c-b9bd-66e3850c81a0/rssFileVip.mp3?timestamp=1766872667267
+podcast: 股癌
+---
+
 # 股癌 EP622 - EP622 | 🕯️ (2025-12-27)
 
 ## 📌 一句話摘要

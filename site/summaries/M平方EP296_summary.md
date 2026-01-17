@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/63e556db-e16c-4df0-af3f-c2da50bdbdd8/rssFileVip.mp3?timestamp=1766533663520
+podcast: M平方
+---
+
 # MacroMicro 財經M平方 EP296 - 十週年特輯｜專訪王伯達 - 2026 資金走向，AI 泡沫會發生嗎？（2025-12-20）
 
 ## 📌 一句話摘要

@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/b6631329-24e5-4ccc-adf5-96335123d32e/rssFileVip.mp3?timestamp=1767485333085
+podcast: M平方
+---
+
 # M平方 EP298 - After Meeting EP. 181｜AI 瓶頸就是電力，佈局機會來了嗎？（2025-12-27）
 
 ## 📌 一句話摘要

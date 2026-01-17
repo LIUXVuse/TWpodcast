@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/ffd2fce6-176a-451f-9e31-7efd9f599bf1/rssFileVip.mp3?timestamp=1767217721606
+podcast: 股癌
+---
+
 # 股癌 EP623 - EP623 | 🎆（2025-12-31）
 
 ## 📌 一句話摘要

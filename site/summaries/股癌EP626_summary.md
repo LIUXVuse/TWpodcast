@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6eb11ce2-9ec6-449e-8bcf-ca8ce1f8ab34/rssFileVip.mp3?timestamp=1768083958668
+podcast: 股癌
+---
+
 # 股癌 EP626 - EP626 | 🕷️（2026-01-10）
 
 ## 📌 一句話摘要

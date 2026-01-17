@@ -1,3 +1,8 @@
+---
+audioUrl: https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/8361f1c0-2853-447e-8bdd-78059ab2d0e4/rssFileVip.mp3?timestamp=1766880524065
+podcast: M平方
+---
+
 # MacroMicro 財經M平方 EP297 - 十週年特輯｜新手請進，長線投資用總經其實不難（2025-12-23）
 
 ## 📌 一句話摘要
