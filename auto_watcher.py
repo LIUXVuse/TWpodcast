@@ -5,6 +5,8 @@
 功能：
 - 監控 Whisper output 資料夾
 - 當新的逐字稿出現時，自動用 Ollama 生成摘要
+- 同時輸出潤稿後的逐字稿到 site/transcripts
+- 自動更新 sidebar.json
 - 可設定監控間隔和檔名過濾
 
 使用方法：
@@ -23,12 +25,80 @@
 
 import sys
 import time
+import json
 import argparse
+import re
 from pathlib import Path
 from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent))
 from podcast_pipeline import PodcastPipeline
+
+
+def update_sidebar(site_dir: Path, summaries_dir: Path, transcripts_dir: Path):
+    """更新 sidebar.json"""
+    sidebar_path = site_dir / ".vitepress" / "sidebar.json"
+    
+    # 節目名稱對應
+    program_patterns = {
+        "Money DJ": r"^Money DJ",
+        "M平方": r"^M平方",
+        "股癌": r"^股癌",
+        "財報狗": r"^財報狗"
+    }
+    
+    # 收集摘要和逐字稿
+    summaries = {}
+    transcripts = {}
+    
+    for prog_name in program_patterns:
+        summaries[prog_name] = []
+        transcripts[prog_name] = []
+    
+    # 掃描摘要
+    for f in sorted(summaries_dir.glob("*_summary.md"), reverse=True):
+        for prog_name, pattern in program_patterns.items():
+            if re.match(pattern, f.stem.replace("_summary", "")):
+                ep_match = re.search(r"EP(\d+)", f.stem)
+                if ep_match:
+                    summaries[prog_name].append({
+                        "text": f"EP{ep_match.group(1)}",
+                        "link": f"/summaries/{f.name}"
+                    })
+                break
+    
+    # 掃描逐字稿
+    for f in sorted(transcripts_dir.glob("*_transcript.md"), reverse=True):
+        for prog_name, pattern in program_patterns.items():
+            if re.match(pattern, f.stem.replace("_transcript", "")):
+                ep_match = re.search(r"EP(\d+)", f.stem)
+                if ep_match:
+                    transcripts[prog_name].append({
+                        "text": f"EP{ep_match.group(1)}",
+                        "link": f"/transcripts/{f.name}"
+                    })
+                break
+    
+    # 建立 sidebar 結構
+    sidebar = {
+        "/summaries/": [{
+            "text": "節目列表",
+            "items": [
+                {"text": prog_name, "collapsed": True, "items": summaries.get(prog_name, [])}
+                for prog_name in program_patterns.keys()
+            ]
+        }],
+        "/transcripts/": [{
+            "text": "逐字稿列表",
+            "items": [
+                {"text": prog_name, "collapsed": True, "items": transcripts.get(prog_name, [])}
+                for prog_name in program_patterns.keys()
+            ]
+        }]
+    }
+    
+    sidebar_path.write_text(json.dumps(sidebar, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(f"   📋 sidebar.json 已更新")
 
 
 def main():
@@ -41,7 +111,8 @@ def main():
     
     print("""
 ╔════════════════════════════════════════════════════════════╗
-║           🔄 Podcast 自動監控器                             ║
+║           🔄 Podcast 自動監控器 v2.0                        ║
+║           (含逐字稿輸出與 sidebar 更新)                      ║
 ╚════════════════════════════════════════════════════════════╝
 """)
     
@@ -63,6 +134,8 @@ def main():
     # 記錄已處理的檔案
     processed = set()
     summaries_dir = pipeline.summaries_dir
+    site_summaries_dir = pipeline.site_summaries_dir
+    site_transcripts_dir = pipeline.site_transcripts_dir
     
     # 載入已存在的摘要（避免重複處理）
     for f in summaries_dir.glob('*_summary.md'):
@@ -106,9 +179,42 @@ def main():
             )
             
             if result.success:
-                # 儲存摘要
+                # 儲存摘要到 data 目錄
                 output_path = summaries_dir / f"{stem}_summary.md"
                 output_path.write_text(result.summary, encoding='utf-8')
+                
+                # 從 stem 推斷節目名稱
+                podcast_name = ""
+                for name in ["Money DJ", "M平方", "股癌", "財報狗"]:
+                    if stem.startswith(name.replace(" ", "")):
+                        podcast_name = name
+                        break
+                
+                # 儲存摘要到 site 目錄（包含 frontmatter）
+                site_summary = pipeline._add_frontmatter_to_summary(
+                    result.summary,
+                    stem,
+                    podcast_name,
+                    "",  # 音訊 URL 未知
+                    stem
+                )
+                site_summary_path = site_summaries_dir / f"{stem}_summary.md"
+                site_summary_path.write_text(site_summary, encoding='utf-8')
+                
+                # 儲存潤稿逐字稿
+                if result.polished_transcript:
+                    transcript_md = pipeline.summarizer.format_transcript_for_display(
+                        result.polished_transcript,
+                        stem,
+                        podcast_name,
+                        ""  # 音訊 URL 未知
+                    )
+                    transcript_path = site_transcripts_dir / f"{stem}_transcript.md"
+                    transcript_path.write_text(transcript_md, encoding='utf-8')
+                    print(f"   ✅ 逐字稿已儲存：{transcript_path.name}")
+                
+                # 更新 sidebar
+                update_sidebar(pipeline.site_dir, site_summaries_dir, site_transcripts_dir)
                 
                 print(f"   ✅ 摘要已儲存：{output_path.name}")
                 processed.add(stem)
@@ -130,3 +236,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n\n👋 監控已停止")
+

@@ -32,8 +32,11 @@ class PipelineResult:
     stages_completed: List[str]
     audio_path: Optional[Path] = None
     transcript: Optional[str] = None
+    polished_transcript: Optional[str] = None
     summary: Optional[str] = None
     summary_path: Optional[Path] = None
+    transcript_path: Optional[Path] = None
+    audio_url: Optional[str] = None
     error: Optional[str] = None
 
 
@@ -59,9 +62,15 @@ class PodcastPipeline:
         self.summarizer = Summarizer(self.ollama, self.config_dir / "templates.yaml")
         self.tracker = FeedTracker(self.config_dir / "feeds.yaml", self.data_dir / "tracking.db")
         
-        # 摘要輸出目錄
+        # 輸出目錄
         self.summaries_dir = self.data_dir / "summaries"
         self.summaries_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 逐字稿輸出目錄（VitePress 站點）
+        self.site_dir = Path(__file__).parent.parent / "site"
+        self.site_summaries_dir = self.site_dir / "summaries"
+        self.site_transcripts_dir = self.site_dir / "transcripts"
+        self.site_transcripts_dir.mkdir(parents=True, exist_ok=True)
     
     def _load_config(self, filename: str) -> dict:
         """載入設定檔"""
@@ -251,13 +260,40 @@ class PodcastPipeline:
             
             if summary_result.success:
                 result.summary = summary_result.summary
+                result.polished_transcript = summary_result.polished_transcript
+                result.audio_url = new_episode.episode.audio_url
                 stages_completed.append('summary_generated')
                 
-                # 儲存摘要
+                # 儲存摘要到 data 目錄
                 summary_filename = f"{file_stem}_summary.md"
                 summary_path = self.summaries_dir / summary_filename
                 summary_path.write_text(summary_result.summary, encoding='utf-8')
                 result.summary_path = summary_path
+                
+                # 儲存摘要到 site 目錄（包含 frontmatter）
+                site_summary_content = self._add_frontmatter_to_summary(
+                    summary_result.summary,
+                    new_episode.episode.title,
+                    new_episode.feed_name,
+                    new_episode.episode.audio_url,
+                    file_stem
+                )
+                site_summary_path = self.site_summaries_dir / summary_filename
+                site_summary_path.write_text(site_summary_content, encoding='utf-8')
+                
+                # 儲存潤稿逐字稿到 site/transcripts 目錄
+                if summary_result.polished_transcript:
+                    transcript_filename = f"{file_stem}_transcript.md"
+                    transcript_md = self.summarizer.format_transcript_for_display(
+                        summary_result.polished_transcript,
+                        new_episode.episode.title,
+                        new_episode.feed_name,
+                        new_episode.episode.audio_url
+                    )
+                    transcript_path = self.site_transcripts_dir / transcript_filename
+                    transcript_path.write_text(transcript_md, encoding='utf-8')
+                    result.transcript_path = transcript_path
+                    print(f"✅ 逐字稿已儲存：{transcript_path}")
                 
                 self.tracker.update_episode_status(
                     new_episode.feed_name,
@@ -266,7 +302,7 @@ class PodcastPipeline:
                     summary_path=str(summary_path)
                 )
                 
-                print(f"\n✅ 摘要已儲存：{summary_path}")
+                print(f"\\n✅ 摘要已儲存：{summary_path}")
             else:
                 result.error = summary_result.error
                 return result
@@ -285,6 +321,37 @@ class PodcastPipeline:
             if feed.name == feed_name:
                 return feed.template
         return 'stock_analysis'  # 預設
+    
+    def _add_frontmatter_to_summary(
+        self,
+        summary: str,
+        episode_title: str,
+        podcast_name: str,
+        audio_url: str,
+        file_stem: str
+    ) -> str:
+        """
+        為摘要添加 YAML frontmatter
+        
+        Args:
+            summary: 原始摘要內容
+            episode_title: 集數標題
+            podcast_name: Podcast 名稱
+            audio_url: 音訊 URL
+            file_stem: 檔案名稱 stem
+            
+        Returns:
+            帶有 frontmatter 的摘要
+        """
+        frontmatter = f"""---
+title: "{episode_title}"
+podcast: "{podcast_name}"
+audioUrl: "{audio_url}"
+transcriptLink: "/transcripts/{file_stem}_transcript.md"
+---
+
+"""
+        return frontmatter + summary
     
     def process_all_new(
         self,

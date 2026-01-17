@@ -1,10 +1,45 @@
 /* .vitepress/theme/custom.css */
 :root {
-  --vp-c-brand: #646cff; /* Example: adjust to your preference */
+  --vp-c-brand: #646cff;
   --vp-c-brand-light: #747bff;
+  --vp-c-brand-1: #646cff;
+  --vp-c-brand-2: #747bff;
 }
 
-/* Add any custom styles here to make it look "Premium" */
+/* 深色模式優化 */
 html.dark {
-    /* Refine dark mode colors if needed */
+  --vp-c-bg-soft: #1a1a2e;
+  --vp-c-bg-mute: #16213e;
+}
+
+/* 播放器樣式增強 */
+.audio-player {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.audio-player:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 逐字稿頁面段落樣式 */
+.vp-doc .transcript-content p {
+  margin: 1rem 0;
+  line-height: 1.8;
+}
+
+/* 對話格式樣式 */
+.vp-doc strong {
+  color: var(--vp-c-brand-1);
+}
+
+/* 響應式優化 */
+@media (max-width: 640px) {
+  .audio-player {
+    padding: 1rem;
+  }
+
+  .audio-element {
+    height: 36px;
+  }
 }
