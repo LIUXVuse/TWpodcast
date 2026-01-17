@@ -34,8 +34,7 @@ export default defineConfig({
 
         nav: [
             { text: '首頁', link: '/' },
-            { text: '所有摘要', link: '/summaries/' },
-            { text: '逐字稿', link: '/transcripts/' }
+            { text: '節目列表', link: '/podcasts/' }
         ],
 
         sidebar: require('./sidebar.json'),

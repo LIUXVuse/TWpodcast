@@ -434,52 +434,37 @@ class Summarizer:
         Returns:
             格式化後的 Markdown 內容
         """
+        import re
+        
+        # 清理 LLM 輸出的代碼塊標記
+        content = polished_transcript.strip()
+        
+        # 移除開頭的 ```markdown 或 ```
+        content = re.sub(r'^```(?:markdown|md)?\s*\n?', '', content)
+        # 移除結尾的 ```
+        content = re.sub(r'\n?```\s*$', '', content)
+        
         # 建立 frontmatter
-        frontmatter_lines = [
-            "---",
-            f"title: {episode_title} - 逐字稿",
-            f"podcast: {podcast_name}" if podcast_name else "",
-            f"audioUrl: {audio_url}" if audio_url else "",
-            "---",
-            ""
-        ]
-        frontmatter = "\n".join(line for line in frontmatter_lines if line or line == "")
+        frontmatter = f"""---
+title: "{episode_title} - 逐字稿"
+podcast: "{podcast_name}"
+audioUrl: "{audio_url}"
+---
+
+"""
         
         # 標題區塊
         header = f"# 📝 {episode_title}\n\n"
         if podcast_name:
             header += f"> 📻 節目：{podcast_name}\n\n"
+        header += "---\n\n"
         
-        # 處理逐字稿內容 - 分段落
-        paragraphs = polished_transcript.strip().split("\n\n")
-        formatted_paragraphs = []
+        # 確保內容有正確的 Markdown 格式
+        # 如果內容沒有章節標題，加上一個
+        if not content.startswith('#'):
+            content = "## 完整逐字稿\n\n" + content
         
-        for para in paragraphs:
-            para = para.strip()
-            if not para:
-                continue
-            
-            # 簡單的段落格式化 - 加上適當的排版
-            # 如果段落很長，保持原樣
-            # 如果看起來像對話（有冒號分隔），保留格式
-            if "：" in para[:50] or ":" in para[:50]:
-                # 可能是對話格式，嘗試格式化
-                lines = para.split("\n")
-                formatted_lines = []
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    formatted_lines.append(line)
-                formatted_paragraphs.append("\n".join(formatted_lines))
-            else:
-                # 一般段落
-                formatted_paragraphs.append(para)
-        
-        # 組合最終內容
-        content = frontmatter + header + "---\n\n" + "\n\n".join(formatted_paragraphs)
-        
-        return content
+        return frontmatter + header + content
 
 
 # 測試用
