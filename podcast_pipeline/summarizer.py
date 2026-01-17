@@ -183,6 +183,10 @@ class Summarizer:
         Returns:
             LLMResponse 物件
         """
+        # 如果逐字稿太長，使用分段處理
+        if len(transcript) > 8000:
+            return self.polish_transcript_chunked(transcript, template_name)
+        
         template = self.templates.get(template_name, self.templates.get('default'))
         
         if not template:
@@ -192,6 +196,106 @@ class Summarizer:
         
         print(f"✨ 開始潤稿（使用模板：{template.get('name', template_name)}）...")
         return self.ollama.generate(prompt, timeout=600)
+    
+    def polish_transcript_chunked(
+        self,
+        transcript: str,
+        template_name: str = 'default',
+        chunk_size: int = 6000,
+        overlap: int = 500
+    ) -> LLMResponse:
+        """
+        分段潤飾長逐字稿
+        
+        將長逐字稿切成多段，分別潤稿後合併。
+        使用重疊窗口確保邊界資訊不會遺失。
+        
+        Args:
+            transcript: 原始逐字稿
+            template_name: 使用的模板名稱
+            chunk_size: 每段大小（字數）
+            overlap: 重疊區域大小（字數）
+            
+        Returns:
+            LLMResponse 物件
+        """
+        # 分段
+        chunks = []
+        start = 0
+        while start < len(transcript):
+            end = min(start + chunk_size, len(transcript))
+            chunks.append(transcript[start:end])
+            start = end - overlap  # 重疊
+            if start >= len(transcript) - overlap:
+                break
+        
+        print(f"✨ 開始分段潤稿（共 {len(chunks)} 段，使用模板：{template_name}）...")
+        
+        # 建立分段專用的 prompt（更簡單，只做潤飾不做章節）
+        chunk_prompt_template = """你是一位專業的繁體中文編輯。請潤飾以下 Podcast 逐字稿片段。
+
+⚠️ 重要規則：
+1. 你必須輸出【完整內容】，不可以刪減或省略任何內容
+2. 這是逐字稿的一個片段，請保持原樣，只做以下修改：
+   - 修正語音辨識錯誤
+   - 補上標點符號
+   - 修正專有名詞
+3. 不要加任何標題、章節、或格式
+4. 直接輸出潤飾後的文字
+
+逐字稿片段：
+{transcript}
+
+請輸出潤飾後的完整文字："""
+
+        polished_chunks = []
+        
+        for i, chunk in enumerate(chunks):
+            print(f"   📄 處理第 {i+1}/{len(chunks)} 段（{len(chunk)} 字）...")
+            
+            prompt = chunk_prompt_template.format(transcript=chunk)
+            result = self.ollama.generate(prompt, timeout=600)
+            
+            if result.success:
+                polished_chunks.append(result.content)
+            else:
+                print(f"   ⚠️ 第 {i+1} 段處理失敗：{result.error}")
+                polished_chunks.append(chunk)  # 失敗時使用原文
+        
+        # 合併（去除重疊部分的重複）
+        merged = polished_chunks[0] if polished_chunks else ""
+        for i in range(1, len(polished_chunks)):
+            # 簡單合併，因為 LLM 輸出的重疊部分可能不完全相同
+            # 直接拼接，讓內容完整
+            merged += "\n\n" + polished_chunks[i]
+        
+        # 整理格式：加上章節
+        print(f"   📝 整理格式並加入章節...")
+        format_prompt = f"""請將以下已潤飾的逐字稿整理成 Markdown 格式，加上章節標題。
+
+規則：
+1. 保留所有內容，不可刪減
+2. 用 `## 🎯 標題` 格式分隔不同話題
+3. 可用的章節類型：開場、廣告業配、主題討論、聽眾問答、結尾
+4. 段落之間空一行
+
+已潤飾的逐字稿：
+{merged}
+
+請輸出完整的 Markdown 格式逐字稿："""
+
+        final_result = self.ollama.generate(format_prompt, timeout=600)
+        
+        if final_result.success:
+            print(f"   ✅ 分段潤稿完成（原始 {len(transcript)} 字 → 輸出 {len(final_result.content)} 字）")
+            return final_result
+        else:
+            # 如果格式化失敗，返回合併結果
+            return LLMResponse(
+                success=True,
+                content=merged,
+                model=final_result.model
+            )
     
     def generate_summary(
         self,
