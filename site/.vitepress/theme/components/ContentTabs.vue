@@ -64,16 +64,14 @@ const isTranscriptPage = computed(() => route.path.includes('/transcripts/'))
       >
         📝 逐字稿
       </a>
+      <!-- 只在摘要頁且逐字稿存在時才顯示連結 -->
       <a 
-        v-else-if="transcriptPath"
+        v-else-if="isSummaryPage && frontmatter.hasTranscript"
         class="tab-btn"
         :href="transcriptPath"
       >
         📝 逐字稿
       </a>
-      <span v-else class="tab-btn disabled" title="逐字稿尚未產生">
-        📝 逐字稿 (無)
-      </span>
     </div>
   </div>
 </template>
