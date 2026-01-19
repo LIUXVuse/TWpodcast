@@ -119,6 +119,68 @@ def is_broadcasted(summary_name: str) -> bool:
     """檢查摘要是否已廣播過"""
     return summary_name in load_broadcasted()
 
+# ===== SMB 待傳佇列管理 =====
+def load_pending_uploads():
+    """載入待傳到 Whisper 的檔案列表"""
+    pending_file = DATA_DIR / 'pending_uploads.json'
+    if pending_file.exists():
+        with open(pending_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+def save_pending_uploads(pending: list):
+    """儲存待傳檔案列表"""
+    pending_file = DATA_DIR / 'pending_uploads.json'
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with open(pending_file, 'w', encoding='utf-8') as f:
+        json.dump(pending, f, ensure_ascii=False, indent=2)
+
+def add_to_pending(filepath: str, target_filename: str):
+    """將檔案加入待傳佇列"""
+    pending = load_pending_uploads()
+    item = {'filepath': filepath, 'target': target_filename}
+    if item not in pending:
+        pending.append(item)
+        save_pending_uploads(pending)
+
+def remove_from_pending(filepath: str):
+    """從待傳佇列移除"""
+    pending = load_pending_uploads()
+    pending = [p for p in pending if p['filepath'] != filepath]
+    save_pending_uploads(pending)
+
+def process_pending_uploads():
+    """處理待傳佇列：SMB 連線後自動補傳"""
+    pending = load_pending_uploads()
+    if not pending:
+        return
+    
+    p = get_pipeline()
+    if not p.whisper.is_connected():
+        return  # SMB 還沒連上，等下次
+    
+    add_scheduler_log(f"🔄 發現 {len(pending)} 個待傳檔案，開始補傳...")
+    
+    success_count = 0
+    for item in pending[:]:  # 用切片避免迭代時修改
+        filepath = Path(item['filepath'])
+        target = item['target']
+        
+        if not filepath.exists():
+            remove_from_pending(str(filepath))
+            continue
+        
+        try:
+            p.whisper.submit_audio(filepath, target)
+            remove_from_pending(str(filepath))
+            add_scheduler_log(f"   ✅ 補傳成功：{target}", 'success')
+            success_count += 1
+        except Exception as e:
+            add_scheduler_log(f"   ❌ 補傳失敗：{target} - {str(e)}", 'error')
+    
+    if success_count > 0:
+        add_scheduler_log(f"📤 補傳完成：{success_count} 個檔案", 'success')
+
 def add_log(msg, level='info'):
     watcher_status['logs'].append({'time': datetime.now().strftime('%H:%M:%S'), 'msg': msg, 'level': level})
     if len(watcher_status['logs']) > 100:
@@ -372,6 +434,12 @@ def scheduler_thread():
             
             time.sleep(30)  # 每 30 秒檢查一次
             
+            # 檢查並處理待傳佇列（SMB 重連後自動補傳）
+            try:
+                process_pending_uploads()
+            except Exception as e:
+                add_scheduler_log(f"⚠️ 補傳檢查錯誤：{str(e)}", 'warning')
+            
         except Exception as e:
             add_scheduler_log(f"❌ 排程線程錯誤：{str(e)}", 'error')
             time.sleep(60)
@@ -467,7 +535,9 @@ def run_scheduled_scan(max_episodes: int):
                     p.whisper.submit_audio(filepath, f"{file_stem}.mp3")
                     add_scheduler_log(f"   ✅ {file_stem} 已下載並提交", 'success')
                 else:
-                    add_scheduler_log(f"   ⚠️ {file_stem} 已下載，但 Whisper 未連接", 'warning')
+                    # SMB 斷線，加入待傳佇列
+                    add_to_pending(str(filepath), f"{file_stem}.mp3")
+                    add_scheduler_log(f"   ⏳ {file_stem} 已下載，等待 SMB 重連後自動補傳", 'warning')
                 
                 downloaded += 1
             
