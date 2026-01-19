@@ -64,6 +64,10 @@
           "collapsed": true,
           "items": [
             {
+              "text": "EP628",
+              "link": "/summaries/股癌EP628_summary.md"
+            },
+            {
               "text": "EP627",
               "link": "/summaries/股癌EP627_summary.md"
             },
@@ -122,33 +126,6 @@
               "link": "/summaries/財報狗EP585_summary.md"
             }
           ]
-        }
-      ]
-    }
-  ],
-  "/transcripts/": [
-    {
-      "text": "逐字稿列表",
-      "items": [
-        {
-          "text": "Money DJ",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "text": "M平方",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "text": "股癌",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "text": "財報狗",
-          "collapsed": true,
-          "items": []
         }
       ]
     }

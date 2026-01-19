@@ -1,8 +1,3 @@
----
-audioUrl: https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/4aa630cc-3488-4548-b79c-f2fe15e0ae79/rssFileVip.mp3?timestamp=1767477323186
-podcast: 股癌
----
-
 # 股癌 EP624 - EP624 | 🎥（2026-01-03）
 
 ## 📌 一句話摘要

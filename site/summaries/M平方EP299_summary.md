@@ -1,8 +1,3 @@
----
-audioUrl: https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/2aade9c0-e736-4c38-a672-5657e6328b72/rssFileVip.mp3?timestamp=1768259849697
-podcast: M平方
----
-
 # M平方 EP299 - After Meeting EP. 182｜2026 首發！盤點全球重要資產（2026-01-03）
 
 ## 📌 一句話摘要

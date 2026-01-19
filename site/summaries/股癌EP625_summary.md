@@ -1,8 +1,3 @@
----
-audioUrl: https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/6cb85fec-a93a-40c6-8d38-1ce2d60b23c9/rssFileVip.mp3?timestamp=1767821980317
-podcast: 股癌
----
-
 # 股癌 EP625 - EP625 | 🧸（2026-01-07）
 
 ## 📌 一句話摘要
