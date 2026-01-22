@@ -36,7 +36,8 @@
 :::
 
 ## 財報狗
-::: details 點擊展開集數列表 (7 集)
+::: details 點擊展開集數列表 (8 集)
+- [EP592](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP592_summary.md)
 - [EP591](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP591_summary.md)
 - [EP590](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP590_summary.md)
 - [EP589](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP589_summary.md)
