@@ -3,7 +3,8 @@
 這裡依照節目分類，收錄了所有自動生成的 Podcast 摘要。
 
 ## Money DJ
-::: details 點擊展開集數列表 (7 集)
+::: details 點擊展開集數列表 (8 集)
+- [EP467](/summaries/Money%20DJEP467_summary.md)
 - [EP466](/summaries/Money%20DJEP466_summary.md)
 - [EP465](/summaries/Money%20DJEP465_summary.md)
 - [EP464](/summaries/Money%20DJEP464_summary.md)
