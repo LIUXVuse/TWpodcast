@@ -17,7 +17,8 @@
 :::
 
 ## M平方
-::: details 點擊展開集數列表 (7 集)
+::: details 點擊展開集數列表 (8 集)
+- [EP303](/summaries/M%E5%B9%B3%E6%96%B9EP303_summary.md)
 - [EP302](/summaries/M%E5%B9%B3%E6%96%B9EP302_summary.md)
 - [EP301](/summaries/M%E5%B9%B3%E6%96%B9EP301_summary.md)
 - [EP300](/summaries/M%E5%B9%B3%E6%96%B9EP300_summary.md)
