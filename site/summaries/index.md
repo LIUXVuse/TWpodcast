@@ -28,6 +28,11 @@
 - [EP296](/summaries/M%E5%B9%B3%E6%96%B9EP296_summary.md)
 :::
 
+## 定錨
+::: details 點擊展開集數列表 (1 集)
+- [EP001](/summaries/%E5%AE%9A%E9%8C%A8EP001_summary.md)
+:::
+
 ## 股癌
 ::: details 點擊展開集數列表 (11 集)
 - [EP632](/summaries/%E8%82%A1%E7%99%8CEP632_summary.md)
