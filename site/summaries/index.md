@@ -29,7 +29,8 @@
 :::
 
 ## 定錨
-::: details 點擊展開集數列表 (1 集)
+::: details 點擊展開集數列表 (2 集)
+- [EP002](/summaries/%E5%AE%9A%E9%8C%A8EP002_summary.md)
 - [EP001](/summaries/%E5%AE%9A%E9%8C%A8EP001_summary.md)
 :::
 
