@@ -444,8 +444,9 @@ def watcher_thread():
 # ===== 排程掃描線程 =====
 scheduler_status = {"running": False, "last_run": None, "logs": []}
 
-# 🦅 赤兔投資同步狀態
-anchor_sync_status: dict = {"last_mtime": 0.0}
+# 🦅 赤兔投資同步狀態（每 4 小時檢查一次）
+anchor_sync_status: dict = {"last_mtime": 0.0, "last_check_time": 0.0}
+ANCHOR_SYNC_INTERVAL = 4 * 60 * 60  # 4 小時（秒）
 
 
 def check_anchor_insights_sync():
@@ -458,13 +459,19 @@ def check_anchor_insights_sync():
     if not anchor_source.exists():
         return  # 來源檔案不存在，跳過
 
+    # 檢查是否超過 4 小時
+    current_time = time.time()
+    last_check = anchor_sync_status.get("last_check_time", 0)
+    if current_time - last_check < ANCHOR_SYNC_INTERVAL:
+        return  # 還沒到 4 小時，跳過檢查
+
+    # 更新上次檢查時間
+    anchor_sync_status["last_check_time"] = current_time
+
     current_mtime = anchor_source.stat().st_mtime
 
     # 檢查是否有更新
-    if (
-        anchor_sync_status["last_mtime"] is not None
-        and current_mtime == anchor_sync_status["last_mtime"]
-    ):
+    if current_mtime == anchor_sync_status["last_mtime"]:
         return  # 沒有更新
 
     # 檢查目標檔案是否需要更新
