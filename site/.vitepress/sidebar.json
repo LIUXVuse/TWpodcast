@@ -4,6 +4,16 @@
       "text": "節目列表",
       "items": [
         {
+          "text": "🦅 赤兔投資",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "投資融合資料庫",
+              "link": "/summaries/anchor_insights.md"
+            }
+          ]
+        },
+        {
           "text": "Money DJ",
           "collapsed": true,
           "items": [
