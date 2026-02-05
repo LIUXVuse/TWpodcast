@@ -11,7 +11,12 @@ if (!fs.existsSync(TARGET_DIR)) {
 
 // 1. Copy Files and Organize Data
 console.log('📦 同步與整理摘要檔案...');
-const files = fs.readdirSync(SOURCE_DIR).filter(file => file.endsWith('.md'));
+const allFiles = fs.readdirSync(SOURCE_DIR).filter(file => file.endsWith('.md'));
+
+// 分離赤兔投資檔案
+const anchorFile = 'anchor_insights.md';
+const hasAnchor = allFiles.includes(anchorFile);
+const files = allFiles.filter(file => file !== anchorFile);
 
 // Data structure to hold grouped episodes
 const podcastGroups = {};
@@ -51,9 +56,23 @@ files.forEach(file => {
 
 console.log(`✅ 已同步 ${files.length} 個檔案，共分為 ${Object.keys(podcastGroups).length} 個節目群組。`);
 
+// 🦅 複製赤兔投資檔案
+if (hasAnchor) {
+    const anchorSource = path.join(SOURCE_DIR, anchorFile);
+    const anchorTarget = path.join(TARGET_DIR, anchorFile);
+    fs.copyFileSync(anchorSource, anchorTarget);
+    console.log('🦅 已同步赤兔投資筆記');
+}
+
 // 2. Generate Summaries Index Page (Clean Layout)
 let indexContent = `# 節目摘要總覽\n\n`;
 indexContent += `這裡依照節目分類，收錄了所有自動生成的 Podcast 摘要。\n\n`;
+
+// 🦅 如果有赤兔投資，先顯示
+if (hasAnchor) {
+    indexContent += `## 🦅 赤兔投資\n`;
+    indexContent += `- [投資融合資料庫](/summaries/anchor_insights.md)\n\n`;
+}
 
 // Iterate through groups to build the page content
 for (const [show, episodes] of Object.entries(podcastGroups)) {
@@ -76,6 +95,18 @@ console.log('📝 已更新 summaries/index.md (包含分類顯示)');
 
 // 3. Generate Sidebar Config (Collapsible)
 const sidebarItems = [];
+
+// 🦅 如果有赤兔投資，先加入
+if (hasAnchor) {
+    sidebarItems.push({
+        text: '🦅 赤兔投資',
+        collapsed: false,
+        items: [{
+            text: '投資融合資料庫',
+            link: '/summaries/anchor_insights.md'
+        }]
+    });
+}
 
 for (const [show, episodes] of Object.entries(podcastGroups)) {
     // Sort for sidebar as well
