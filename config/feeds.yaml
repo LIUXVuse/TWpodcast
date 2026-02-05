@@ -24,3 +24,9 @@ feeds:
   prefix: MM
   template: stock_analysis
   url: https://feeds.soundon.fm/podcasts/d2aab16c-3a70-4023-b52b-e50f07852ecd.xml
+- enabled: true
+  filename_pattern: EP{index:03d}
+  name: 定錨
+  prefix: DM
+  template: stock_analysis
+  url: https://feeds.soundon.fm/podcasts/06e16cf5-5b45-4863-bcdf-9343aa584f73.xml
