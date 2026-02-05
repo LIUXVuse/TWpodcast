@@ -3,21 +3,10 @@
 這裡依照節目分類，收錄了所有自動生成的 Podcast 摘要。
 
 ## 🦅 赤兔投資
-
 - [投資融合資料庫](/summaries/anchor_insights.md)
 
-## DM_
-
-::: details 點擊展開集數列表 (2 集)
-
-- [EP002](/summaries/DM_EP002_summary.md)
-- [EP001](/summaries/DM_EP001_summary.md)
-:::
-
 ## Money DJ
-
 ::: details 點擊展開集數列表 (10 集)
-
 - [EP469](/summaries/Money%20DJEP469_summary.md)
 - [EP468](/summaries/Money%20DJEP468_summary.md)
 - [EP467](/summaries/Money%20DJEP467_summary.md)
@@ -31,9 +20,7 @@
 :::
 
 ## M平方
-
-::: details 點擊展開集數列表 (8 集)
-
+::: details 點擊展開集數列表 (7 集)
 - [EP303](/summaries/M%E5%B9%B3%E6%96%B9EP303_summary.md)
 - [EP302](/summaries/M%E5%B9%B3%E6%96%B9EP302_summary.md)
 - [EP301](/summaries/M%E5%B9%B3%E6%96%B9EP301_summary.md)
@@ -41,21 +28,16 @@
 - [EP299](/summaries/M%E5%B9%B3%E6%96%B9EP299_summary.md)
 - [EP298](/summaries/M%E5%B9%B3%E6%96%B9EP298_summary.md)
 - [EP297](/summaries/M%E5%B9%B3%E6%96%B9EP297_summary.md)
-- [EP296](/summaries/M%E5%B9%B3%E6%96%B9EP296_summary.md)
 :::
 
 ## 定錨
-
 ::: details 點擊展開集數列表 (2 集)
-
 - [EP002](/summaries/%E5%AE%9A%E9%8C%A8EP002_summary.md)
 - [EP001](/summaries/%E5%AE%9A%E9%8C%A8EP001_summary.md)
 :::
 
 ## 股癌
-
 ::: details 點擊展開集數列表 (12 集)
-
 - [EP633](/summaries/%E8%82%A1%E7%99%8CEP633_summary.md)
 - [EP632](/summaries/%E8%82%A1%E7%99%8CEP632_summary.md)
 - [EP631](/summaries/%E8%82%A1%E7%99%8CEP631_summary.md)
@@ -71,9 +53,7 @@
 :::
 
 ## 財報狗
-
 ::: details 點擊展開集數列表 (8 集)
-
 - [EP592](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP592_summary.md)
 - [EP591](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP591_summary.md)
 - [EP590](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP590_summary.md)
@@ -83,3 +63,4 @@
 - [EP586](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP586_summary.md)
 - [EP585](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP585_summary.md)
 :::
+
