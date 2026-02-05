@@ -16,6 +16,7 @@ from flask import Flask, render_template_string, request, jsonify
 from datetime import datetime
 
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent))
 from podcast_pipeline import PodcastPipeline
 from podcast_pipeline.telegram_notifier import TelegramNotifier
@@ -24,17 +25,23 @@ from rss_downloader.parser import parse_rss
 
 app = Flask(__name__)
 pipeline = None
-CONFIG_DIR = Path(__file__).parent / 'config'
-DATA_DIR = Path(__file__).parent / 'data'
+CONFIG_DIR = Path(__file__).parent / "config"
+DATA_DIR = Path(__file__).parent / "data"
 
 # 監控狀態
-watcher_status = {'running': False, 'logs': [], 'processed_count': 0, 'last_check': None}
+watcher_status = {
+    "running": False,
+    "logs": [],
+    "processed_count": 0,
+    "last_check": None,
+}
 
 # 排程設定
-schedule_config = {'enabled': False, 'time': '20:00', 'max_episodes': 5}
+schedule_config = {"enabled": False, "time": "20:00", "max_episodes": 5}
 
 # 排除前綴
-EXCLUDE_PREFIXES = ['S3EP']
+EXCLUDE_PREFIXES = ["S3EP"]
+
 
 def get_pipeline():
     global pipeline
@@ -42,72 +49,90 @@ def get_pipeline():
         pipeline = PodcastPipeline()
     return pipeline
 
+
 def load_feeds():
-    feeds_file = CONFIG_DIR / 'feeds.yaml'
+    feeds_file = CONFIG_DIR / "feeds.yaml"
     if feeds_file.exists():
-        with open(feeds_file, 'r', encoding='utf-8') as f:
+        with open(feeds_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-        return data.get('feeds', [])
+        return data.get("feeds", [])
     return []
 
+
 def save_feeds(feeds):
-    feeds_file = CONFIG_DIR / 'feeds.yaml'
-    data = {'feeds': feeds, 'download': {'default_path': '~/Downloads/Podcasts', 'auto_cleanup': False, 'keep_recent': 10}}
-    with open(feeds_file, 'w', encoding='utf-8') as f:
+    feeds_file = CONFIG_DIR / "feeds.yaml"
+    data = {
+        "feeds": feeds,
+        "download": {
+            "default_path": "~/Downloads/Podcasts",
+            "auto_cleanup": False,
+            "keep_recent": 10,
+        },
+    }
+    with open(feeds_file, "w", encoding="utf-8") as f:
         yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
 
+
 def load_episode_metadata():
-    meta_file = DATA_DIR / 'episode_metadata.json'
+    meta_file = DATA_DIR / "episode_metadata.json"
     if meta_file.exists():
-        with open(meta_file, 'r', encoding='utf-8') as f:
+        with open(meta_file, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
 
+
 def save_episode_metadata(metadata):
-    meta_file = DATA_DIR / 'episode_metadata.json'
+    meta_file = DATA_DIR / "episode_metadata.json"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(meta_file, 'w', encoding='utf-8') as f:
+    with open(meta_file, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
 
+
 def load_schedule_config():
-    config_file = DATA_DIR / 'schedule_config.json'
+    config_file = DATA_DIR / "schedule_config.json"
     if config_file.exists():
-        with open(config_file, 'r', encoding='utf-8') as f:
+        with open(config_file, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {'enabled': False, 'time': '20:00', 'max_episodes': 5}
+    return {"enabled": False, "time": "20:00", "max_episodes": 5}
+
 
 def save_schedule_config(config):
-    config_file = DATA_DIR / 'schedule_config.json'
+    config_file = DATA_DIR / "schedule_config.json"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(config_file, 'w', encoding='utf-8') as f:
+    with open(config_file, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
+
 
 def load_telegram_config():
     """從 services.yaml 讀取 Telegram 設定"""
-    services_file = CONFIG_DIR / 'services.yaml'
+    services_file = CONFIG_DIR / "services.yaml"
     if services_file.exists():
-        with open(services_file, 'r', encoding='utf-8') as f:
+        with open(services_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-        return data.get('telegram', {})
-    return {'enabled': False}
+        return data.get("telegram", {})
+    return {"enabled": False}
+
 
 # ===== Telegram 廣播追蹤 =====
 telegram_broadcast_enabled = True  # 廣播開關（runtime）
 
+
 def load_broadcasted():
     """載入已廣播的摘要列表"""
-    broadcast_file = DATA_DIR / 'broadcasted.json'
+    broadcast_file = DATA_DIR / "broadcasted.json"
     if broadcast_file.exists():
-        with open(broadcast_file, 'r', encoding='utf-8') as f:
+        with open(broadcast_file, "r", encoding="utf-8") as f:
             return set(json.load(f))
     return set()
 
+
 def save_broadcasted(broadcasted: set):
     """儲存已廣播的摘要列表"""
-    broadcast_file = DATA_DIR / 'broadcasted.json'
+    broadcast_file = DATA_DIR / "broadcasted.json"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(broadcast_file, 'w', encoding='utf-8') as f:
+    with open(broadcast_file, "w", encoding="utf-8") as f:
         json.dump(list(broadcasted), f, ensure_ascii=False)
+
 
 def mark_as_broadcasted(summary_name: str):
     """標記摘要為已廣播"""
@@ -115,362 +140,481 @@ def mark_as_broadcasted(summary_name: str):
     broadcasted.add(summary_name)
     save_broadcasted(broadcasted)
 
+
 def is_broadcasted(summary_name: str) -> bool:
     """檢查摘要是否已廣播過"""
     return summary_name in load_broadcasted()
 
+
 # ===== SMB 待傳佇列管理 =====
 def load_pending_uploads():
     """載入待傳到 Whisper 的檔案列表"""
-    pending_file = DATA_DIR / 'pending_uploads.json'
+    pending_file = DATA_DIR / "pending_uploads.json"
     if pending_file.exists():
-        with open(pending_file, 'r', encoding='utf-8') as f:
+        with open(pending_file, "r", encoding="utf-8") as f:
             return json.load(f)
     return []
 
+
 def save_pending_uploads(pending: list):
     """儲存待傳檔案列表"""
-    pending_file = DATA_DIR / 'pending_uploads.json'
+    pending_file = DATA_DIR / "pending_uploads.json"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with open(pending_file, 'w', encoding='utf-8') as f:
+    with open(pending_file, "w", encoding="utf-8") as f:
         json.dump(pending, f, ensure_ascii=False, indent=2)
+
 
 def add_to_pending(filepath: str, target_filename: str):
     """將檔案加入待傳佇列"""
     pending = load_pending_uploads()
-    item = {'filepath': filepath, 'target': target_filename}
+    item = {"filepath": filepath, "target": target_filename}
     if item not in pending:
         pending.append(item)
         save_pending_uploads(pending)
 
+
 def remove_from_pending(filepath: str):
     """從待傳佇列移除"""
     pending = load_pending_uploads()
-    pending = [p for p in pending if p['filepath'] != filepath]
+    pending = [p for p in pending if p["filepath"] != filepath]
     save_pending_uploads(pending)
+
 
 def process_pending_uploads():
     """處理待傳佇列：SMB 連線後自動補傳"""
     pending = load_pending_uploads()
     if not pending:
         return
-    
+
     p = get_pipeline()
     if not p.whisper.is_connected():
         return  # SMB 還沒連上，等下次
-    
+
     add_scheduler_log(f"🔄 發現 {len(pending)} 個待傳檔案，開始補傳...")
-    
+
     success_count = 0
     for item in pending[:]:  # 用切片避免迭代時修改
-        filepath = Path(item['filepath'])
-        target = item['target']
-        
+        filepath = Path(item["filepath"])
+        target = item["target"]
+
         if not filepath.exists():
             remove_from_pending(str(filepath))
             continue
-        
+
         try:
             p.whisper.submit_audio(filepath, target)
             remove_from_pending(str(filepath))
-            add_scheduler_log(f"   ✅ 補傳成功：{target}", 'success')
+            add_scheduler_log(f"   ✅ 補傳成功：{target}", "success")
             success_count += 1
         except Exception as e:
-            add_scheduler_log(f"   ❌ 補傳失敗：{target} - {str(e)}", 'error')
-    
-    if success_count > 0:
-        add_scheduler_log(f"📤 補傳完成：{success_count} 個檔案", 'success')
+            add_scheduler_log(f"   ❌ 補傳失敗：{target} - {str(e)}", "error")
 
-def add_log(msg, level='info'):
-    watcher_status['logs'].append({'time': datetime.now().strftime('%H:%M:%S'), 'msg': msg, 'level': level})
-    if len(watcher_status['logs']) > 100:
-        watcher_status['logs'] = watcher_status['logs'][-100:]
+    if success_count > 0:
+        add_scheduler_log(f"📤 補傳完成：{success_count} 個檔案", "success")
+
+
+def add_log(msg, level="info"):
+    watcher_status["logs"].append(
+        {"time": datetime.now().strftime("%H:%M:%S"), "msg": msg, "level": level}
+    )
+    if len(watcher_status["logs"]) > 100:
+        watcher_status["logs"] = watcher_status["logs"][-100:]
+
 
 def watcher_thread():
     p = get_pipeline()
     processed = set()
-    
+
     # 載入 metadata 來正確追蹤已處理的逐字稿
     metadata = load_episode_metadata()
-    existing_summaries = list(p.summaries_dir.glob('*_summary.md'))
-    
+    existing_summaries = list(p.summaries_dir.glob("*_summary.md"))
+
     for f in existing_summaries:
-        summary_name = f.stem.replace('_summary', '')
+        summary_name = f.stem.replace("_summary", "")
         # 從 metadata 反查對應的逐字稿 stem
         for stem, meta in metadata.items():
-            feed_name = meta.get('feed_name', '')
-            ep_index = meta.get('index', '')
+            feed_name = meta.get("feed_name", "")
+            ep_index = meta.get("index", "")
             if feed_name and isinstance(ep_index, int):
-                expected_name = f'{feed_name}EP{ep_index:03d}'
+                expected_name = f"{feed_name}EP{ep_index:03d}"
                 if summary_name == expected_name:
                     processed.add(stem)  # 加入逐字稿的 stem
                     break
         else:
             # 舊格式或無 metadata 的情況
             processed.add(summary_name)
-    
-    add_log(f'🚀 監控已啟動，已有 {len(processed)} 個摘要')
-    
-    while watcher_status['running']:
+
+    add_log(f"🚀 監控已啟動，已有 {len(processed)} 個摘要")
+
+    while watcher_status["running"]:
         try:
-            watcher_status['last_check'] = datetime.now().strftime('%H:%M:%S')
+            watcher_status["last_check"] = datetime.now().strftime("%H:%M:%S")
             # 每次掃描都重新載入 metadata 和 feeds（確保能讀取到最新設定）
             metadata = load_episode_metadata()
             feeds = load_feeds()
-            transcripts = list(p.whisper.output_dir.glob('*_tw.txt'))
-            
+            transcripts = list(p.whisper.output_dir.glob("*_tw.txt"))
+
             for t in transcripts:
-                if not watcher_status['running']:
+                if not watcher_status["running"]:
                     break
-                    
-                stem = t.stem.replace('_tw', '')
-                
+
+                stem = t.stem.replace("_tw", "")
+
                 if any(stem.startswith(pf) for pf in EXCLUDE_PREFIXES):
                     continue
-                
+
                 if stem in processed:
                     continue
-                
-                add_log(f'🆕 發現新逐字稿：{t.name}')
-                
+
+                add_log(f"🆕 發現新逐字稿：{t.name}")
+
                 meta = metadata.get(stem, {})
-                feed_name = meta.get('feed_name', '')
-                ep_title = meta.get('title', '')
-                ep_date = meta.get('published', '')
-                ep_index = meta.get('index', None)
-                
+                feed_name = meta.get("feed_name", "")
+                ep_title = meta.get("title", "")
+                ep_date = meta.get("published", "")
+                ep_index = meta.get("index", None)
+
                 # 智慧識別：如果沒有 metadata，嘗試從檔名 prefix 推斷
                 if not feed_name:
                     # 嘗試解析檔名格式：PREFIX_EPXXX 或 EPXXX
                     import re
+
                     # 格式1: MM_EP301 → prefix=MM, index=301
-                    match_prefix = re.match(r'^([A-Za-z]+)_EP(\d+)$', stem)
+                    match_prefix = re.match(r"^([A-Za-z]+)_EP(\d+)$", stem)
                     # 格式2: EP301 → prefix=None, index=301
-                    match_ep = re.match(r'^EP(\d+)$', stem)
-                    
+                    match_ep = re.match(r"^EP(\d+)$", stem)
+
                     if match_prefix:
                         prefix = match_prefix.group(1)
                         ep_index = int(match_prefix.group(2))
                         # 從 feeds 配置找對應的節目名稱
                         for feed in feeds:
-                            if feed.get('prefix', '').upper() == prefix.upper():
-                                feed_name = feed.get('name', '')
-                                add_log(f'   🔍 從 prefix [{prefix}] 識別為：{feed_name}')
+                            if feed.get("prefix", "").upper() == prefix.upper():
+                                feed_name = feed.get("name", "")
+                                add_log(
+                                    f"   🔍 從 prefix [{prefix}] 識別為：{feed_name}"
+                                )
                                 break
                     elif match_ep:
                         ep_index = int(match_ep.group(1))
-                        add_log(f'   ⚠️ 無法識別節目（檔名只有 EP 編號），將使用原始檔名')
-                
+                        add_log(
+                            f"   ⚠️ 無法識別節目（檔名只有 EP 編號），將使用原始檔名"
+                        )
+
                 # 計算預期的摘要檔名
                 if feed_name and isinstance(ep_index, int):
-                    summary_filename = f'{feed_name}EP{ep_index:03d}_summary.md'
+                    summary_filename = f"{feed_name}EP{ep_index:03d}_summary.md"
                 else:
-                    summary_filename = f'{stem}_summary.md'
-                
+                    summary_filename = f"{stem}_summary.md"
+
                 # 檢查摘要是否已存在（避免重複處理）
                 if (p.summaries_dir / summary_filename).exists():
-                    add_log(f'   ⏭️ 摘要已存在，跳過：{summary_filename}')
+                    add_log(f"   ⏭️ 摘要已存在，跳過：{summary_filename}")
                     processed.add(stem)
                     continue
-                
+
                 # 根據 feed_name 找到對應的模板
-                template_id = 'stock_analysis'  # 預設
+                template_id = "stock_analysis"  # 預設
                 for feed in feeds:
-                    if feed.get('name') == feed_name:
-                        template_id = feed.get('template', 'stock_analysis')
+                    if feed.get("name") == feed_name:
+                        template_id = feed.get("template", "stock_analysis")
                         break
-                
+
                 # 組裝完整標題：節目名 EPXXX - 標題（日期）
                 if feed_name:
-                    full_title = f"{feed_name} EP{ep_index:03d}" if isinstance(ep_index, int) else f"{feed_name} {stem}"
+                    full_title = (
+                        f"{feed_name} EP{ep_index:03d}"
+                        if isinstance(ep_index, int)
+                        else f"{feed_name} {stem}"
+                    )
                 else:
                     full_title = stem
                 if ep_title:
                     full_title += f" - {ep_title}"
                 if ep_date:
                     full_title += f"（{ep_date}）"
-                
-                add_log(f'   📄 標題：{full_title[:60]}...')
-                add_log(f'   🎨 使用模板：{template_id}')
-                
-                transcript = t.read_text(encoding='utf-8')
+
+                add_log(f"   📄 標題：{full_title[:60]}...")
+                add_log(f"   🎨 使用模板：{template_id}")
+
+                transcript = t.read_text(encoding="utf-8")
                 result = p.summarizer.process(transcript, full_title, template_id)
-                
+
                 if result.success:
                     # 檔名格式：節目名EP集數_summary.md
                     if feed_name and isinstance(ep_index, int):
-                        summary_filename = f'{feed_name}EP{ep_index:03d}_summary.md'
+                        summary_filename = f"{feed_name}EP{ep_index:03d}_summary.md"
                     else:
-                        summary_filename = f'{stem}_summary.md'
+                        summary_filename = f"{stem}_summary.md"
                     output = p.summaries_dir / summary_filename
-                    output.write_text(result.summary, encoding='utf-8')
+                    output.write_text(result.summary, encoding="utf-8")
                     processed.add(stem)
-                    watcher_status['processed_count'] += 1
-                    add_log(f'   ✅ 已儲存：{summary_filename}', 'success')
-                    
+                    watcher_status["processed_count"] += 1
+                    add_log(f"   ✅ 已儲存：{summary_filename}", "success")
+
                     # 計算 summary_name（用於 Git 和 Telegram）
-                    summary_name = summary_filename.replace('_summary.md', '')
-                    
+                    summary_name = summary_filename.replace("_summary.md", "")
+
                     # 自動推送到 Git
                     try:
                         git_pub = GitPublisher()
                         if git_pub.enabled:
                             git_result = git_pub.publish(summary_name, output)
-                            if git_result['success']:
-                                add_log(f'   🚀 Git 已推送', 'success')
+                            if git_result["success"]:
+                                add_log(f"   🚀 Git 已推送", "success")
                                 # 自動同步網站並再次推送
                                 try:
-                                    site_script = Path(__file__).parent / 'site' / 'scripts' / 'sync-content.js'
+                                    site_script = (
+                                        Path(__file__).parent
+                                        / "site"
+                                        / "scripts"
+                                        / "sync-content.js"
+                                    )
                                     if site_script.exists():
                                         import subprocess
+
                                         sync_result = subprocess.run(
-                                            ['node', str(site_script)],
+                                            ["node", str(site_script)],
                                             cwd=Path(__file__).parent,
                                             capture_output=True,
                                             text=True,
-                                            timeout=30
+                                            timeout=30,
                                         )
                                         if sync_result.returncode == 0:
-                                            add_log(f'   📦 網站目錄已同步', 'success')
+                                            add_log(f"   📦 網站目錄已同步", "success")
                                             # 再次推送網站變更
-                                            git_pub._run_git('add', 'site/')
-                                            git_pub._run_git('commit', '-m', f'🌐 同步網站目錄：{summary_name}')
-                                            push_ok, push_msg = git_pub._run_git('push')
+                                            git_pub._run_git("add", "site/")
+                                            git_pub._run_git(
+                                                "commit",
+                                                "-m",
+                                                f"🌐 同步網站目錄：{summary_name}",
+                                            )
+                                            push_ok, push_msg = git_pub._run_git("push")
                                             if push_ok:
-                                                add_log(f'   🌐 網站已更新', 'success')
+                                                add_log(f"   🌐 網站已更新", "success")
                                             else:
-                                                add_log(f'   ⚠️ 網站推送失敗', 'warning')
+                                                add_log(f"   ⚠️ 網站推送失敗", "warning")
                                         else:
-                                            add_log(f'   ⚠️ 網站同步失敗', 'warning')
+                                            add_log(f"   ⚠️ 網站同步失敗", "warning")
                                 except Exception as se:
-                                    add_log(f'   ⚠️ 網站同步錯誤：{str(se)}', 'warning')
+                                    add_log(f"   ⚠️ 網站同步錯誤：{str(se)}", "warning")
                             else:
-                                add_log(f'   ⚠️ Git 推送：{git_result["message"]}', 'warning')
+                                add_log(
+                                    f"   ⚠️ Git 推送：{git_result['message']}", "warning"
+                                )
                     except Exception as ge:
-                        add_log(f'   ⚠️ Git 錯誤：{str(ge)}', 'warning')
-                    
+                        add_log(f"   ⚠️ Git 錯誤：{str(ge)}", "warning")
+
                     # 推送到 Telegram（檢查開關和是否已廣播）
                     try:
                         global telegram_broadcast_enabled
                         telegram_config = load_telegram_config()
-                        
+
                         if not telegram_broadcast_enabled:
-                            add_log(f'   📴 Telegram 廣播已關閉，跳過推送')
+                            add_log(f"   📴 Telegram 廣播已關閉，跳過推送")
                             mark_as_broadcasted(summary_name)  # 仍標記為已處理
                         elif is_broadcasted(summary_name):
-                            add_log(f'   ⏭️ 已廣播過，跳過')
-                        elif telegram_config.get('enabled'):
+                            add_log(f"   ⏭️ 已廣播過，跳過")
+                        elif telegram_config.get("enabled"):
                             notifier = TelegramNotifier(telegram_config)
                             tg_result = notifier.send_summary(output)
                             if tg_result.success:
                                 mark_as_broadcasted(summary_name)
-                                add_log(f'   📤 Telegram 推送成功', 'success')
+                                add_log(f"   📤 Telegram 推送成功", "success")
                             else:
-                                add_log(f'   ⚠️ Telegram 推送失敗：{tg_result.error}', 'warning')
+                                add_log(
+                                    f"   ⚠️ Telegram 推送失敗：{tg_result.error}",
+                                    "warning",
+                                )
                         else:
-                            add_log(f'   📴 Telegram 未啟用')
+                            add_log(f"   📴 Telegram 未啟用")
                     except Exception as te:
-                        add_log(f'   ⚠️ Telegram 錯誤：{str(te)}', 'warning')
+                        add_log(f"   ⚠️ Telegram 錯誤：{str(te)}", "warning")
                 else:
-                    add_log(f'   ❌ 失敗：{result.error}', 'error')
-            
+                    add_log(f"   ❌ 失敗：{result.error}", "error")
+
             time.sleep(30)
         except Exception as e:
-            add_log(f'❌ 錯誤：{str(e)}', 'error')
+            add_log(f"❌ 錯誤：{str(e)}", "error")
             time.sleep(5)
-    
-    add_log('👋 監控已停止')
+
+    add_log("👋 監控已停止")
+
 
 # ===== 排程掃描線程 =====
-scheduler_status = {'running': False, 'last_run': None, 'logs': []}
+scheduler_status = {"running": False, "last_run": None, "logs": []}
 
-def add_scheduler_log(msg, level='info'):
-    scheduler_status['logs'].append({'time': datetime.now().strftime('%H:%M:%S'), 'msg': msg, 'level': level})
-    if len(scheduler_status['logs']) > 50:
-        scheduler_status['logs'] = scheduler_status['logs'][-50:]
+# 🦅 赤兔投資同步狀態
+anchor_sync_status: dict = {"last_mtime": 0.0}
+
+
+def check_anchor_insights_sync():
+    """檢查 ~/.openclaw/workspace/memory/anchor_insights.md 是否有更新，有則同步到網站"""
+    import subprocess
+
+    anchor_source = Path.home() / ".openclaw/workspace/memory/anchor_insights.md"
+    anchor_target = DATA_DIR / "summaries" / "anchor_insights.md"
+
+    if not anchor_source.exists():
+        return  # 來源檔案不存在，跳過
+
+    current_mtime = anchor_source.stat().st_mtime
+
+    # 檢查是否有更新
+    if (
+        anchor_sync_status["last_mtime"] is not None
+        and current_mtime == anchor_sync_status["last_mtime"]
+    ):
+        return  # 沒有更新
+
+    # 檢查目標檔案是否需要更新
+    if anchor_target.exists() and anchor_target.stat().st_mtime >= current_mtime:
+        anchor_sync_status["last_mtime"] = current_mtime
+        return  # 目標檔案已經是最新
+
+    add_scheduler_log("🦅 偵測到赤兔投資筆記更新，開始同步...")
+
+    # 確保目錄存在
+    anchor_target.parent.mkdir(parents=True, exist_ok=True)
+
+    # 複製檔案
+    shutil.copy2(anchor_source, anchor_target)
+    anchor_sync_status["last_mtime"] = current_mtime
+    add_scheduler_log("   📄 已複製到 data/summaries/", "success")
+
+    # 執行 sync-content.js 同步到網站
+    try:
+        site_script = Path(__file__).parent / "site" / "scripts" / "sync-content.js"
+        if site_script.exists():
+            sync_result = subprocess.run(
+                ["node", str(site_script)],
+                cwd=Path(__file__).parent,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if sync_result.returncode == 0:
+                add_scheduler_log("   📦 網站目錄已同步", "success")
+            else:
+                add_scheduler_log(f"   ⚠️ 網站同步失敗：{sync_result.stderr}", "warning")
+                return
+    except Exception as e:
+        add_scheduler_log(f"   ⚠️ 同步腳本錯誤：{str(e)}", "warning")
+        return
+
+    # 推送到 Git
+    try:
+        git_pub = GitPublisher()
+        if git_pub.enabled:
+            git_pub._run_git("add", "data/summaries/anchor_insights.md")
+            git_pub._run_git("add", "site/")
+            git_pub._run_git("commit", "-m", "🦅 更新赤兔投資筆記")
+            push_ok, push_msg = git_pub._run_git("push")
+            if push_ok:
+                add_scheduler_log("   🚀 Git 已推送", "success")
+            else:
+                add_scheduler_log(f"   ⚠️ Git 推送失敗：{push_msg}", "warning")
+    except Exception as e:
+        add_scheduler_log(f"   ⚠️ Git 錯誤：{str(e)}", "warning")
+
+
+def add_scheduler_log(msg, level="info"):
+    scheduler_status["logs"].append(
+        {"time": datetime.now().strftime("%H:%M:%S"), "msg": msg, "level": level}
+    )
+    if len(scheduler_status["logs"]) > 50:
+        scheduler_status["logs"] = scheduler_status["logs"][-50:]
     print(f"[排程] {msg}")
+
 
 def scheduler_thread():
     """排程掃描線程 - 定時檢查 RSS 並下載最新集數"""
     import requests as req
-    
+
     add_scheduler_log("📅 排程線程已啟動")
     checked_today = set()  # 記錄今天已檢查過的時間
-    
+
     while True:
         try:
             config = load_schedule_config()
-            
-            if not config.get('enabled', False):
+
+            if not config.get("enabled", False):
                 time.sleep(60)  # 未啟用，每分鐘檢查一次
                 continue
-            
+
             now = datetime.now()
-            current_time = now.strftime('%H:%M')
-            current_date = now.strftime('%Y-%m-%d')
-            
+            current_time = now.strftime("%H:%M")
+            current_date = now.strftime("%Y-%m-%d")
+
             # 重置每日記錄
-            if scheduler_status.get('last_date') != current_date:
+            if scheduler_status.get("last_date") != current_date:
                 checked_today.clear()
-                scheduler_status['last_date'] = current_date
-            
+                scheduler_status["last_date"] = current_date
+
             # 取得設定的時間列表
-            times = config.get('times', [config.get('time', '20:00')])
-            max_episodes = config.get('max_episodes', 5)
-            
+            times = config.get("times", [config.get("time", "20:00")])
+            max_episodes = config.get("max_episodes", 5)
+
             # 檢查是否到達掃描時間
             for scan_time in times:
                 check_key = f"{current_date}_{scan_time}"
                 if current_time == scan_time and check_key not in checked_today:
                     checked_today.add(check_key)
                     add_scheduler_log(f"⏰ 到達掃描時間 {scan_time}，開始掃描 RSS")
-                    scheduler_status['last_run'] = now.strftime('%Y-%m-%d %H:%M:%S')
-                    
+                    scheduler_status["last_run"] = now.strftime("%Y-%m-%d %H:%M:%S")
+
                     # 執行掃描
                     try:
                         run_scheduled_scan(max_episodes)
                     except Exception as e:
-                        add_scheduler_log(f"❌ 掃描錯誤：{str(e)}", 'error')
-            
+                        add_scheduler_log(f"❌ 掃描錯誤：{str(e)}", "error")
+
             time.sleep(30)  # 每 30 秒檢查一次
-            
+
+            # 🦅 檢查赤兔投資筆記是否有更新
+            try:
+                check_anchor_insights_sync()
+            except Exception as e:
+                add_scheduler_log(f"⚠️ 赤兔投資同步錯誤：{str(e)}", "warning")
+
             # 檢查並處理待傳佇列（SMB 重連後自動補傳）
             try:
                 process_pending_uploads()
             except Exception as e:
-                add_scheduler_log(f"⚠️ 補傳檢查錯誤：{str(e)}", 'warning')
-            
+                add_scheduler_log(f"⚠️ 補傳檢查錯誤：{str(e)}", "warning")
+
         except Exception as e:
-            add_scheduler_log(f"❌ 排程線程錯誤：{str(e)}", 'error')
+            add_scheduler_log(f"❌ 排程線程錯誤：{str(e)}", "error")
             time.sleep(60)
+
 
 def run_scheduled_scan(max_episodes: int):
     """執行排程掃描：檢查每個 feed 的最新集數並下載"""
     import requests as req
     import feedparser
-    
+
     p = get_pipeline()
     feeds = load_feeds()
     metadata = load_episode_metadata()
-    
+
     for feed in feeds:
-        if not feed.get('enabled', True):
+        if not feed.get("enabled", True):
             continue
-        
-        feed_name = feed.get('name', '')
-        feed_prefix = feed.get('prefix', '')
-        feed_url = feed.get('url', '')
-        
+
+        feed_name = feed.get("name", "")
+        feed_prefix = feed.get("prefix", "")
+        feed_url = feed.get("url", "")
+
         if not feed_url:
             continue
-        
+
         add_scheduler_log(f"🔍 掃描 {feed_name}...")
-        
+
         try:
             # 解析 RSS
             parsed = feedparser.parse(feed_url)
             entries = parsed.entries[:max_episodes]
-            
+
             downloaded = 0
             for i, entry in enumerate(entries):
                 # 組裝檔名
@@ -479,78 +623,83 @@ def run_scheduled_scan(max_episodes: int):
                     file_stem = f"{feed_prefix}_EP{ep_index:03d}"
                 else:
                     file_stem = f"EP{ep_index:03d}"
-                
+
                 # 檢查是否已下載
                 if file_stem in metadata:
                     continue
-                
+
                 # 取得音檔 URL
                 audio_url = None
-                for link in entry.get('links', []):
-                    if 'audio' in link.get('type', ''):
-                        audio_url = link.get('href')
+                for link in entry.get("links", []):
+                    if "audio" in link.get("type", ""):
+                        audio_url = link.get("href")
                         break
-                if not audio_url and entry.get('enclosures'):
-                    audio_url = entry.enclosures[0].get('href')
-                
+                if not audio_url and entry.get("enclosures"):
+                    audio_url = entry.enclosures[0].get("href")
+
                 if not audio_url:
                     continue
-                
+
                 # 下載
                 add_scheduler_log(f"   📥 下載 {file_stem}...")
-                
-                download_dir = Path.home() / 'Downloads' / 'Podcasts'
+
+                download_dir = Path.home() / "Downloads" / "Podcasts"
                 download_dir.mkdir(parents=True, exist_ok=True)
                 filepath = download_dir / f"{file_stem}.mp3"
-                
+
                 if not filepath.exists():
                     resp = req.get(audio_url, stream=True, timeout=300)
                     resp.raise_for_status()
-                    with open(filepath, 'wb') as f:
+                    with open(filepath, "wb") as f:
                         for chunk in resp.iter_content(8192):
                             f.write(chunk)
-                
+
                 # 儲存 metadata
-                published = entry.get('published', '')
+                published = entry.get("published", "")
                 if published:
                     from email.utils import parsedate_to_datetime
+
                     try:
                         dt = parsedate_to_datetime(published)
-                        published = dt.strftime('%Y-%m-%d')
+                        published = dt.strftime("%Y-%m-%d")
                     except:
                         pass
-                
+
                 metadata[file_stem] = {
-                    'feed_name': feed_name,
-                    'feed_prefix': feed_prefix,
-                    'index': ep_index,
-                    'title': entry.get('title', ''),
-                    'published': published,
-                    'audio_url': audio_url
+                    "feed_name": feed_name,
+                    "feed_prefix": feed_prefix,
+                    "index": ep_index,
+                    "title": entry.get("title", ""),
+                    "published": published,
+                    "audio_url": audio_url,
                 }
                 save_episode_metadata(metadata)
-                
+
                 # 提交給 Whisper
                 if p.whisper.is_connected():
                     p.whisper.submit_audio(filepath, f"{file_stem}.mp3")
-                    add_scheduler_log(f"   ✅ {file_stem} 已下載並提交", 'success')
+                    add_scheduler_log(f"   ✅ {file_stem} 已下載並提交", "success")
                 else:
                     # SMB 斷線，加入待傳佇列
                     add_to_pending(str(filepath), f"{file_stem}.mp3")
-                    add_scheduler_log(f"   ⏳ {file_stem} 已下載，等待 SMB 重連後自動補傳", 'warning')
-                
+                    add_scheduler_log(
+                        f"   ⏳ {file_stem} 已下載，等待 SMB 重連後自動補傳", "warning"
+                    )
+
                 downloaded += 1
-            
+
             if downloaded > 0:
-                add_scheduler_log(f"   📊 {feed_name} 下載了 {downloaded} 集", 'success')
+                add_scheduler_log(
+                    f"   📊 {feed_name} 下載了 {downloaded} 集", "success"
+                )
             else:
                 add_scheduler_log(f"   ✓ {feed_name} 無新集數")
-                
+
         except Exception as e:
-            add_scheduler_log(f"   ❌ {feed_name} 錯誤：{str(e)}", 'error')
+            add_scheduler_log(f"   ❌ {feed_name} 錯誤：{str(e)}", "error")
 
 
-DASHBOARD_HTML = '''
+DASHBOARD_HTML = """
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1275,158 +1424,185 @@ DASHBOARD_HTML = '''
     </script>
 </body>
 </html>
-'''
+"""
 
-@app.route('/')
+
+@app.route("/")
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
-@app.route('/api/status')
+
+@app.route("/api/status")
 def api_status():
     p = get_pipeline()
     status = p.get_status()
-    
+
     # 加入 Telegram 狀態
     telegram_config = load_telegram_config()
     telegram_connected = False
-    if telegram_config.get('enabled') and telegram_config.get('bot_token') and telegram_config.get('chat_id'):
+    if (
+        telegram_config.get("enabled")
+        and telegram_config.get("bot_token")
+        and telegram_config.get("chat_id")
+    ):
         try:
             import requests
+
             resp = requests.get(
                 f"https://api.telegram.org/bot{telegram_config['bot_token']}/getMe",
-                timeout=5
+                timeout=5,
             )
-            telegram_connected = resp.ok and resp.json().get('ok', False)
+            telegram_connected = resp.ok and resp.json().get("ok", False)
         except:
             pass
-    
-    status['telegram'] = {
-        'enabled': telegram_config.get('enabled', False),
-        'connected': telegram_connected,
-        'chat_id': telegram_config.get('chat_id', '')
+
+    status["telegram"] = {
+        "enabled": telegram_config.get("enabled", False),
+        "connected": telegram_connected,
+        "chat_id": telegram_config.get("chat_id", ""),
     }
-    
+
     return jsonify(status)
 
-@app.route('/api/feeds')
+
+@app.route("/api/feeds")
 def api_feeds():
     return jsonify(load_feeds())
 
-@app.route('/api/feeds/add', methods=['POST'])
+
+@app.route("/api/feeds/add", methods=["POST"])
 def api_feeds_add():
     try:
         data = request.json
         feeds = load_feeds()
-        feeds.append({
-            'name': data['name'],
-            'url': data['url'],
-            'enabled': True,
-            'prefix': data.get('prefix', ''),  # 節目縮寫（如 CFG、MDJ）
-            'filename_pattern': data.get('filename_pattern', 'EP{index:03d}'),
-            'template': data.get('template', 'stock_analysis')
-        })
+        feeds.append(
+            {
+                "name": data["name"],
+                "url": data["url"],
+                "enabled": True,
+                "prefix": data.get("prefix", ""),  # 節目縮寫（如 CFG、MDJ）
+                "filename_pattern": data.get("filename_pattern", "EP{index:03d}"),
+                "template": data.get("template", "stock_analysis"),
+            }
+        )
         save_feeds(feeds)
-        return jsonify({'ok': True})
+        return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)})
+        return jsonify({"ok": False, "error": str(e)})
 
-@app.route('/api/feeds/delete', methods=['POST'])
+
+@app.route("/api/feeds/delete", methods=["POST"])
 def api_feeds_delete():
     try:
-        idx = request.json.get('index', -1)
+        idx = request.json.get("index", -1)
         feeds = load_feeds()
         if 0 <= idx < len(feeds):
             feeds.pop(idx)
             save_feeds(feeds)
-        return jsonify({'ok': True})
+        return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)})
+        return jsonify({"ok": False, "error": str(e)})
 
-@app.route('/api/schedule')
+
+@app.route("/api/schedule")
 def api_schedule():
     return jsonify(load_schedule_config())
 
-@app.route('/api/schedule/save', methods=['POST'])
+
+@app.route("/api/schedule/save", methods=["POST"])
 def api_schedule_save():
     try:
         config = request.json
         save_schedule_config(config)
-        return jsonify({'ok': True})
+        return jsonify({"ok": True})
     except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)})
+        return jsonify({"ok": False, "error": str(e)})
 
-@app.route('/api/parse', methods=['POST'])
+
+@app.route("/api/parse", methods=["POST"])
 def api_parse():
     try:
-        url = request.json.get('url')
+        url = request.json.get("url")
         info = parse_rss(url)
-        episodes = [{'index': ep.index, 'title': ep.title, 'published': ep.published.strftime('%Y-%m-%d'), 'audio_url': ep.audio_url} for ep in info.episodes]
-        return jsonify({'title': info.title, 'episodes': episodes})
+        episodes = [
+            {
+                "index": ep.index,
+                "title": ep.title,
+                "published": ep.published.strftime("%Y-%m-%d"),
+                "audio_url": ep.audio_url,
+            }
+            for ep in info.episodes
+        ]
+        return jsonify({"title": info.title, "episodes": episodes})
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({"error": str(e)})
 
-@app.route('/api/download_and_copy', methods=['POST'])
+
+@app.route("/api/download_and_copy", methods=["POST"])
 def api_download_and_copy():
     try:
-        ep = request.json.get('episode')
-        feed_name = request.json.get('feed_name', '')
-        feed_prefix = request.json.get('feed_prefix', '')  # 節目縮寫
+        ep = request.json.get("episode")
+        feed_name = request.json.get("feed_name", "")
+        feed_prefix = request.json.get("feed_prefix", "")  # 節目縮寫
         p = get_pipeline()
         import requests as req
-        
-        download_dir = Path.home() / 'Downloads' / 'Podcasts'
+
+        download_dir = Path.home() / "Downloads" / "Podcasts"
         download_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # 使用「節目縮寫_EPxxx」格式避免衝突
         if feed_prefix:
             file_stem = f"{feed_prefix}_EP{ep['index']:03d}"
         else:
             file_stem = f"EP{ep['index']:03d}"
-        
+
         filename = f"{file_stem}.mp3"
         filepath = download_dir / filename
-        
+
         if not filepath.exists():
-            resp = req.get(ep['audio_url'], stream=True, timeout=300)
+            resp = req.get(ep["audio_url"], stream=True, timeout=300)
             resp.raise_for_status()
-            with open(filepath, 'wb') as f:
+            with open(filepath, "wb") as f:
                 for chunk in resp.iter_content(8192):
                     f.write(chunk)
-        
+
         # 儲存 metadata（用於生成摘要標題）
         metadata = load_episode_metadata()
         metadata[file_stem] = {
-            'feed_name': feed_name,
-            'feed_prefix': feed_prefix,
-            'index': ep['index'],
-            'title': ep['title'],
-            'published': ep.get('published', ''),  # 日期
-            'audio_url': ep['audio_url']
+            "feed_name": feed_name,
+            "feed_prefix": feed_prefix,
+            "index": ep["index"],
+            "title": ep["title"],
+            "published": ep.get("published", ""),  # 日期
+            "audio_url": ep["audio_url"],
         }
         save_episode_metadata(metadata)
-        
+
         if p.whisper.is_connected():
             p.whisper.submit_audio(filepath, filename)
-            return jsonify({'success': True, 'file_stem': file_stem})
-        return jsonify({'success': False, 'error': 'Whisper 未連接'})
+            return jsonify({"success": True, "file_stem": file_stem})
+        return jsonify({"success": False, "error": "Whisper 未連接"})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({"success": False, "error": str(e)})
 
-@app.route('/api/watcher/start', methods=['POST'])
+
+@app.route("/api/watcher/start", methods=["POST"])
 def api_watcher_start():
-    if not watcher_status['running']:
-        watcher_status['running'] = True
-        watcher_status['logs'] = []
+    if not watcher_status["running"]:
+        watcher_status["running"] = True
+        watcher_status["logs"] = []
         t = threading.Thread(target=watcher_thread, daemon=True)
         t.start()
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-@app.route('/api/watcher/stop', methods=['POST'])
+
+@app.route("/api/watcher/stop", methods=["POST"])
 def api_watcher_stop():
-    watcher_status['running'] = False
-    return jsonify({'ok': True})
+    watcher_status["running"] = False
+    return jsonify({"ok": True})
 
-@app.route('/api/watcher/status')
+
+@app.route("/api/watcher/status")
 def api_watcher_status():
     p = get_pipeline()
     pending = 0
@@ -1434,186 +1610,213 @@ def api_watcher_status():
         if p.whisper.is_connected():
             # 載入 metadata 來正確關聯
             metadata = load_episode_metadata()
-            
+
             # 取得已處理的 stem（從 metadata key 來判斷）
             processed_stems = set()
-            for f in p.summaries_dir.glob('*_summary.md'):
+            for f in p.summaries_dir.glob("*_summary.md"):
                 # 嘗試從 metadata 反查
                 for stem, meta in metadata.items():
-                    feed_name = meta.get('feed_name', '')
-                    ep_index = meta.get('index', '')
+                    feed_name = meta.get("feed_name", "")
+                    ep_index = meta.get("index", "")
                     if feed_name and isinstance(ep_index, int):
-                        expected_filename = f'{feed_name}EP{ep_index:03d}_summary.md'
+                        expected_filename = f"{feed_name}EP{ep_index:03d}_summary.md"
                         if f.name == expected_filename:
                             processed_stems.add(stem)
                             break
                 else:
                     # 舊格式：stem_summary.md
-                    processed_stems.add(f.stem.replace('_summary', ''))
-            
+                    processed_stems.add(f.stem.replace("_summary", ""))
+
             # 計算待處理
-            for t in p.whisper.output_dir.glob('*_tw.txt'):
-                stem = t.stem.replace('_tw', '')
+            for t in p.whisper.output_dir.glob("*_tw.txt"):
+                stem = t.stem.replace("_tw", "")
                 if any(stem.startswith(pf) for pf in EXCLUDE_PREFIXES):
                     continue
                 if stem not in processed_stems:
                     # 額外檢查：對應的摘要檔案是否已存在
                     meta = metadata.get(stem, {})
-                    feed_name = meta.get('feed_name', '')
-                    ep_index = meta.get('index', stem)
+                    feed_name = meta.get("feed_name", "")
+                    ep_index = meta.get("index", stem)
                     if feed_name and isinstance(ep_index, int):
-                        summary_filename = f'{feed_name}EP{ep_index:03d}_summary.md'
+                        summary_filename = f"{feed_name}EP{ep_index:03d}_summary.md"
                     else:
-                        summary_filename = f'{stem}_summary.md'
-                    
+                        summary_filename = f"{stem}_summary.md"
+
                     if not (p.summaries_dir / summary_filename).exists():
                         pending += 1
     except:
         pass
-    return jsonify({
-        'running': watcher_status['running'],
-        'logs': watcher_status['logs'][-50:],
-        'processed_count': watcher_status['processed_count'],
-        'pending_count': pending,
-        'last_check': watcher_status['last_check'],
-        'scheduler_logs': scheduler_status.get('logs', [])[-20:],
-        'scheduler_last_run': scheduler_status.get('last_run')
-    })
+    return jsonify(
+        {
+            "running": watcher_status["running"],
+            "logs": watcher_status["logs"][-50:],
+            "processed_count": watcher_status["processed_count"],
+            "pending_count": pending,
+            "last_check": watcher_status["last_check"],
+            "scheduler_logs": scheduler_status.get("logs", [])[-20:],
+            "scheduler_last_run": scheduler_status.get("last_run"),
+        }
+    )
 
-@app.route('/api/telegram/broadcast', methods=['GET', 'POST'])
+
+@app.route("/api/telegram/broadcast", methods=["GET", "POST"])
 def api_telegram_broadcast():
     global telegram_broadcast_enabled
-    if request.method == 'POST':
+    if request.method == "POST":
         data = request.json or {}
-        telegram_broadcast_enabled = data.get('enabled', True)
-        return jsonify({'ok': True, 'enabled': telegram_broadcast_enabled})
-    return jsonify({'enabled': telegram_broadcast_enabled})
+        telegram_broadcast_enabled = data.get("enabled", True)
+        return jsonify({"ok": True, "enabled": telegram_broadcast_enabled})
+    return jsonify({"enabled": telegram_broadcast_enabled})
 
-@app.route('/api/telegram/send', methods=['POST'])
+
+@app.route("/api/telegram/send", methods=["POST"])
 def api_telegram_send():
     """手動發送單個摘要到 Telegram"""
     try:
         data = request.json or {}
-        summary_name = data.get('summary_name', '')
-        
+        summary_name = data.get("summary_name", "")
+
         if not summary_name:
-            return jsonify({'success': False, 'error': '未指定摘要名稱'})
-        
+            return jsonify({"success": False, "error": "未指定摘要名稱"})
+
         p = get_pipeline()
-        summary_file = p.summaries_dir / f'{summary_name}_summary.md'
-        
+        summary_file = p.summaries_dir / f"{summary_name}_summary.md"
+
         if not summary_file.exists():
-            return jsonify({'success': False, 'error': f'摘要不存在：{summary_name}'})
-        
+            return jsonify({"success": False, "error": f"摘要不存在：{summary_name}"})
+
         telegram_config = load_telegram_config()
-        if not telegram_config.get('enabled'):
-            return jsonify({'success': False, 'error': 'Telegram 未啟用'})
-        
+        if not telegram_config.get("enabled"):
+            return jsonify({"success": False, "error": "Telegram 未啟用"})
+
         notifier = TelegramNotifier(telegram_config)
         result = notifier.send_summary(summary_file)
-        
+
         if result.success:
             mark_as_broadcasted(summary_name)
-            return jsonify({'success': True})
+            return jsonify({"success": True})
         else:
-            return jsonify({'success': False, 'error': result.error})
+            return jsonify({"success": False, "error": result.error})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({"success": False, "error": str(e)})
+
 
 # ===== 模板 API =====
 def load_templates():
     """載入所有模板"""
-    template_file = CONFIG_DIR / 'templates.yaml'
+    template_file = CONFIG_DIR / "templates.yaml"
     if template_file.exists():
-        with open(template_file, 'r', encoding='utf-8') as f:
+        with open(template_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-        return data.get('templates', {})
+        return data.get("templates", {})
     return {}
+
 
 def save_templates(templates):
     """儲存模板"""
-    template_file = CONFIG_DIR / 'templates.yaml'
-    with open(template_file, 'w', encoding='utf-8') as f:
-        yaml.dump({'templates': templates}, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+    template_file = CONFIG_DIR / "templates.yaml"
+    with open(template_file, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {"templates": templates},
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False,
+        )
 
-@app.route('/api/templates')
+
+@app.route("/api/templates")
 def api_templates():
     return jsonify(load_templates())
 
-@app.route('/api/templates/save', methods=['POST'])
+
+@app.route("/api/templates/save", methods=["POST"])
 def api_templates_save():
     try:
         data = request.json
-        template_id = data.get('id', '').strip()
+        template_id = data.get("id", "").strip()
         if not template_id:
-            return jsonify({'success': False, 'error': '模板 ID 不能為空'})
-        
+            return jsonify({"success": False, "error": "模板 ID 不能為空"})
+
         templates = load_templates()
         templates[template_id] = {
-            'name': data.get('name', template_id),
-            'description': data.get('description', ''),
-            'polish_prompt': data.get('polish_prompt', ''),
-            'summary_prompt': data.get('summary_prompt', '')
+            "name": data.get("name", template_id),
+            "description": data.get("description", ""),
+            "polish_prompt": data.get("polish_prompt", ""),
+            "summary_prompt": data.get("summary_prompt", ""),
         }
         save_templates(templates)
-        return jsonify({'success': True})
+        return jsonify({"success": True})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({"success": False, "error": str(e)})
 
-@app.route('/api/templates/delete', methods=['POST'])
+
+@app.route("/api/templates/delete", methods=["POST"])
 def api_templates_delete():
     try:
         data = request.json
-        template_id = data.get('id', '')
-        
+        template_id = data.get("id", "")
+
         # 不允許刪除內建模板
-        if template_id in ['stock_analysis', 'default', 'news', 'tech']:
-            return jsonify({'success': False, 'error': '不能刪除內建模板'})
-        
+        if template_id in ["stock_analysis", "default", "news", "tech"]:
+            return jsonify({"success": False, "error": "不能刪除內建模板"})
+
         templates = load_templates()
         if template_id in templates:
             del templates[template_id]
             save_templates(templates)
-            return jsonify({'success': True})
+            return jsonify({"success": True})
         else:
-            return jsonify({'success': False, 'error': '模板不存在'})
+            return jsonify({"success": False, "error": "模板不存在"})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({"success": False, "error": str(e)})
 
-@app.route('/api/summaries')
+
+@app.route("/api/summaries")
 def api_summaries():
     p = get_pipeline()
     summaries = []
-    for f in sorted(p.summaries_dir.glob('*_summary.md'), reverse=True)[:50]:
-        content = f.read_text(encoding='utf-8')
-        lines = content.split('\n')
-        title_line = next((l for l in lines if l.startswith('# ')), '')
-        preview = next((l for l in lines if l.strip() and not l.startswith('#')), '')[:100]
-        summaries.append({
-            'name': f.stem.replace('_summary',''),
-            'title': title_line.replace('# ', ''),
-            'preview': preview
-        })
+    for f in sorted(p.summaries_dir.glob("*_summary.md"), reverse=True)[:50]:
+        content = f.read_text(encoding="utf-8")
+        lines = content.split("\n")
+        title_line = next((l for l in lines if l.startswith("# ")), "")
+        preview = next((l for l in lines if l.strip() and not l.startswith("#")), "")[
+            :100
+        ]
+        summaries.append(
+            {
+                "name": f.stem.replace("_summary", ""),
+                "title": title_line.replace("# ", ""),
+                "preview": preview,
+            }
+        )
     return jsonify(summaries)
 
-@app.route('/api/summary/<name>')
+
+@app.route("/api/summary/<name>")
 def api_summary(name):
     p = get_pipeline()
-    f = p.summaries_dir / f'{name}_summary.md'
+    f = p.summaries_dir / f"{name}_summary.md"
     if f.exists():
-        return f.read_text(encoding='utf-8'), 200, {'Content-Type': 'text/plain; charset=utf-8'}
-    return 'Not found', 404
+        return (
+            f.read_text(encoding="utf-8"),
+            200,
+            {"Content-Type": "text/plain; charset=utf-8"},
+        )
+    return "Not found", 404
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("\n🎙️ Podcast Pipeline Dashboard v5")
     print("=" * 40)
     print("📍 http://localhost:8080")
     print("=" * 40 + "\n")
-    
+
     # 啟動排程線程
     import threading
+
     scheduler_t = threading.Thread(target=scheduler_thread, daemon=True)
     scheduler_t.start()
     print("📅 排程線程已啟動")
-    
-    app.run(host='0.0.0.0', port=8080, debug=False, threaded=True)
+
+    app.run(host="0.0.0.0", port=8080, debug=False, threaded=True)
