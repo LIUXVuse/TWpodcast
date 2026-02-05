@@ -18,6 +18,10 @@
           "collapsed": true,
           "items": [
             {
+              "text": "EP002",
+              "link": "/summaries/DM_EP002_summary.md"
+            },
+            {
               "text": "EP001",
               "link": "/summaries/DM_EP001_summary.md"
             }

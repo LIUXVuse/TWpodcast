@@ -6,7 +6,8 @@
 - [投資融合資料庫](/summaries/anchor_insights.md)
 
 ## DM_
-::: details 點擊展開集數列表 (1 集)
+::: details 點擊展開集數列表 (2 集)
+- [EP002](/summaries/DM_EP002_summary.md)
 - [EP001](/summaries/DM_EP001_summary.md)
 :::
 
