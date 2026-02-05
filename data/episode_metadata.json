@@ -274,5 +274,93 @@
     "title": "【MM Podcast】After Meeting EP. 184｜破兆營收的神山；關稅底定的台灣",
     "published": "2026-01-17",
     "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/9fb73cac-eff6-4c55-9dfe-f2b3ddc0a270/rssFileVip.mp3?timestamp=1768694929079"
+  },
+  "CFG_EP592": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 592,
+    "title": "501.【財經時事放大鏡】AI 重啟電子原物料大時代 x APPLE Silicon",
+    "published": "2026-01-22",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cmkpm79rc0ktc01wuc413826t/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcmkpm79rc0ktd01wuhqyi666a.mp3?v=1769940232942"
+  },
+  "MDJ_EP469": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 469,
+    "title": "DJ有事嗎 | Ep.237 大咖財報驚喜連連 下週雙A登場",
+    "published": "2026-01-29",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/4dd86eec-5278-49b3-b256-e2708c70ee5c/rssFileVip.mp3?timestamp=1769803853756"
+  },
+  "MDJ_EP468": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 468,
+    "title": "Ep.229 化合物半導體三雄 2026誰擁最佳利基?",
+    "published": "2026-01-26",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/e495c5c8-abe1-43c5-8bfa-8627a09243be/rssFileVip.mp3?timestamp=1769465039873"
+  },
+  "MDJ_EP467": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 467,
+    "title": "DJ有事嗎 | Ep.236 美股七巨頭進入財報發布週，AI仍是關注焦點",
+    "published": "2026-01-22",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/aba134ba-6b16-4cdf-8f05-21d7c4141374/rssFileVip.mp3?timestamp=1769198676019"
+  },
+  "GY_EP633": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 633,
+    "title": "EP633 | 🪢",
+    "published": "2026-02-04",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/e511ab59-5e81-461a-896b-915a76e346e3/rssFileVip.mp3?timestamp=1770243509137"
+  },
+  "GY_EP632": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 632,
+    "title": "EP632 | ❄️",
+    "published": "2026-01-31",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/ecfd5a72-ac6b-4630-ae57-f5128f002ed7/rssFileVip.mp3?timestamp=1769898072997"
+  },
+  "GY_EP631": {
+    "feed_name": "股癌",
+    "feed_prefix": "GY",
+    "index": 631,
+    "title": "EP631 | 🎁",
+    "published": "2026-01-28",
+    "audio_url": "https://rss.soundon.fm/rssf/954689a5-3096-43a4-a80b-7810b219cef3/feedurl/a9201652-a419-4a3c-a9f9-e6a09d91f976/rssFileVip.mp3?timestamp=1769638805486"
+  },
+  "MM_EP303": {
+    "feed_name": "M平方",
+    "feed_prefix": "MM",
+    "index": 303,
+    "title": "After Meeting EP. 186｜利息要降不降，美元卻降了",
+    "published": "2026-01-31",
+    "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/022b1535-5160-4ed6-a3f2-c74419ded458/rssFileVip.mp3?timestamp=1769904473703"
+  },
+  "MM_EP302": {
+    "feed_name": "M平方",
+    "feed_prefix": "MM",
+    "index": 302,
+    "title": "After Meeting EP. 185｜2026 開局之亂，川普的多重戰線",
+    "published": "2026-01-24",
+    "audio_url": "https://rss.soundon.fm/rssf/d2aab16c-3a70-4023-b52b-e50f07852ecd/feedurl/d745c390-8122-4f87-887a-fb9d31e546f0/rssFileVip.mp3?timestamp=1769401258632"
+  },
+  "DM_EP002": {
+    "feed_name": "定錨",
+    "feed_prefix": "DM",
+    "index": 2,
+    "title": "EP2-不對稱作戰之無人機升空  ft.Mark",
+    "published": "2026-02-02",
+    "audio_url": "https://rss.soundon.fm/rssf/06e16cf5-5b45-4863-bcdf-9343aa584f73/feedurl/f55b9d7c-0300-4462-aa07-c014d76ac8a0/rssFileVip.mp3?timestamp=1770215377130"
+  },
+  "DM_EP001": {
+    "feed_name": "定錨",
+    "feed_prefix": "DM",
+    "index": 1,
+    "title": "EP1-CES 2026 現場直擊：NVIDIA Kyber Rack & CPO交換器 ft.Eric",
+    "published": "2026-01-27",
+    "audio_url": "https://rss.soundon.fm/rssf/06e16cf5-5b45-4863-bcdf-9343aa584f73/feedurl/48ab379a-44d3-4d75-bbd5-22ecac14ae56/rssFileVip.mp3?timestamp=1770215392582"
   }
 }
