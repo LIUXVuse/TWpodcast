@@ -362,5 +362,21 @@
     "title": "EP1-CES 2026 現場直擊：NVIDIA Kyber Rack & CPO交換器 ft.Eric",
     "published": "2026-01-27",
     "audio_url": "https://rss.soundon.fm/rssf/06e16cf5-5b45-4863-bcdf-9343aa584f73/feedurl/48ab379a-44d3-4d75-bbd5-22ecac14ae56/rssFileVip.mp3?timestamp=1770215392582"
+  },
+  "CFG_EP593": {
+    "feed_name": "財報狗",
+    "feed_prefix": "CFG",
+    "index": 593,
+    "title": "502.【財經時事放大鏡】SpaceX x Google x 半導體設備",
+    "published": "2026-02-05",
+    "audio_url": "https://sw.soundon.fm/p/HHZK1T/m.cdn.firstory.me/track/clcftm46z000201z45w1c47fi/cml9mvk0t067t01zxfagg6otf/https%3A%2F%2Fd3mww1g1pfq2pt.cloudfront.net%2FRecord%2Fclcftm46z000201z45w1c47fi%2Fcml9mvk0t067u01zxgnpf63a5.mp3?v=1770306696363"
+  },
+  "MDJ_EP470": {
+    "feed_name": "Money DJ",
+    "feed_prefix": "MDJ",
+    "index": 470,
+    "title": "DJ有事嗎 | Ep.238 抱股過年看什麼？卡位AI質變",
+    "published": "2026-02-05",
+    "audio_url": "https://rss.soundon.fm/rssf/489a6945-a341-40ca-88ab-73c174057634/feedurl/5a5b97d6-ade9-4637-ae91-69451e339702/rssFileVip.mp3?timestamp=1770329871821"
   }
 }
