@@ -22,7 +22,7 @@
 :::
 
 ## M平方
-::: details 點擊展開集數列表 (8 集)
+::: details 點擊展開集數列表 (9 集)
 - [EP304](/summaries/M%E5%B9%B3%E6%96%B9EP304_summary.md)
 - [EP303](/summaries/M%E5%B9%B3%E6%96%B9EP303_summary.md)
 - [EP302](/summaries/M%E5%B9%B3%E6%96%B9EP302_summary.md)
@@ -31,6 +31,7 @@
 - [EP299](/summaries/M%E5%B9%B3%E6%96%B9EP299_summary.md)
 - [EP298](/summaries/M%E5%B9%B3%E6%96%B9EP298_summary.md)
 - [EP297](/summaries/M%E5%B9%B3%E6%96%B9EP297_summary.md)
+- [EP296](/summaries/M%E5%B9%B3%E6%96%B9EP296_summary.md)
 :::
 
 ## 定錨
