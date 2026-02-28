@@ -45,7 +45,8 @@
 :::
 
 ## 股癌
-::: details 點擊展開集數列表 (18 集)
+::: details 點擊展開集數列表 (19 集)
+- [EP640](/summaries/%E8%82%A1%E7%99%8CEP640_summary.md)
 - [EP639](/summaries/%E8%82%A1%E7%99%8CEP639_summary.md)
 - [EP638](/summaries/%E8%82%A1%E7%99%8CEP638_summary.md)
 - [EP637](/summaries/%E8%82%A1%E7%99%8CEP637_summary.md)
