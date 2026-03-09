@@ -39,7 +39,8 @@
 :::
 
 ## 定錨
-::: details 點擊展開集數列表 (6 集)
+::: details 點擊展開集數列表 (7 集)
+- [EP007](/summaries/%E5%AE%9A%E9%8C%A8EP007_summary.md)
 - [EP006](/summaries/%E5%AE%9A%E9%8C%A8EP006_summary.md)
 - [EP005](/summaries/%E5%AE%9A%E9%8C%A8EP005_summary.md)
 - [EP004](/summaries/%E5%AE%9A%E9%8C%A8EP004_summary.md)
