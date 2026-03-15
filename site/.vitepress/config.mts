@@ -2,10 +2,44 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     title: "Podcast 摘要",
-    description: "財經 Podcast 的 AI 智慧摘要與逐字稿",
+    description: "台灣財經 Podcast AI 智慧摘要庫，自動化彙整 Money DJ、股癌、M平方、定錨、財報狗等節目逐字稿與重點摘要。",
     base: "/TWpodcast/",
+    lang: 'zh-TW',
     cleanUrls: true,
     appearance: 'dark',
+
+    sitemap: {
+        hostname: 'https://liuxvuse.github.io/TWpodcast/'
+    },
+
+    head: [
+        // Open Graph
+        ['meta', { property: 'og:type', content: 'website' }],
+        ['meta', { property: 'og:site_name', content: 'TWpodcast 財經 Podcast 摘要庫' }],
+        ['meta', { property: 'og:title', content: 'TWpodcast — 台灣財經 Podcast AI 摘要' }],
+        ['meta', { property: 'og:description', content: '台灣財經 Podcast AI 智慧摘要庫，自動化彙整 Money DJ、股癌、M平方等節目逐字稿與重點摘要。' }],
+        ['meta', { property: 'og:url', content: 'https://liuxvuse.github.io/TWpodcast/' }],
+        ['meta', { property: 'og:locale', content: 'zh_TW' }],
+        // Twitter Card
+        ['meta', { name: 'twitter:card', content: 'summary' }],
+        ['meta', { name: 'twitter:title', content: 'TWpodcast — 台灣財經 Podcast AI 摘要' }],
+        ['meta', { name: 'twitter:description', content: '台灣財經 Podcast AI 智慧摘要庫，自動化彙整重點摘要。' }],
+        // Schema.org
+        ['script', { type: 'application/ld+json' }, JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": "https://liuxvuse.github.io/TWpodcast/#website",
+            "url": "https://liuxvuse.github.io/TWpodcast/",
+            "name": "TWpodcast 財經 Podcast 摘要庫",
+            "description": "台灣財經 Podcast AI 智慧摘要，涵蓋 Money DJ、股癌、M平方、定錨、財報狗",
+            "inLanguage": "zh-TW",
+            "about": {
+                "@type": "Thing",
+                "name": "台灣財經 Podcast 摘要",
+                "description": "使用 AI 自動生成的台灣財經 Podcast 逐字稿與重點摘要"
+            }
+        })]
+    ],
 
     themeConfig: {
         logo: { text: '🎙️ 財經 Podcast' },

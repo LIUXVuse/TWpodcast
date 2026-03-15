@@ -1,0 +1,36 @@
+# TWpodcast — 台灣財經 Podcast AI 摘要庫
+
+> 自動化彙整台灣主要財經 Podcast 的 AI 智慧摘要與逐字稿，讓你快速掌握市場動態。
+
+## 關於這個網站
+
+TWpodcast 是一個自動化 Podcast 摘要平台，使用 OpenAI Whisper 進行語音轉文字，
+再透過大型語言模型（LLM）提取關鍵財經見解，每集自動生成結構化摘要。
+
+## 涵蓋節目
+
+- **Money DJ** — 財經市場分析
+- **M平方** — 總體經濟與投資
+- **定錨** — 財經新聞解析
+- **股癌** — 台股投資策略
+- **財報狗** — 基本面分析
+
+## 技術架構
+
+- 語音轉文字：OpenAI Whisper
+- 摘要生成：大型語言模型（LLM）
+- 靜態網站：VitePress
+- 通知頻道：Telegram (@twpodcast)
+- 原始碼：https://github.com/LIUXVuse/TWpodcast
+
+## 內容類型
+
+財經 Podcast 逐字稿、AI 摘要、市場觀點整理、台股分析、總經解讀
+
+## 語言
+
+繁體中文
+
+## 更新頻率
+
+自動化排程，隨節目更新
