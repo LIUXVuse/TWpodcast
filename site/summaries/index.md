@@ -84,7 +84,8 @@
 :::
 
 ## 財報狗
-::: details 點擊展開集數列表 (17 集)
+::: details 點擊展開集數列表 (18 集)
+- [EP602](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP602_summary.md)
 - [EP601](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP601_summary.md)
 - [EP600](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP600_summary.md)
 - [EP599](/summaries/%E8%B2%A1%E5%A0%B1%E7%8B%97EP599_summary.md)
