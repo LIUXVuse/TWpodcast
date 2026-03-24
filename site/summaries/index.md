@@ -6,7 +6,8 @@
 - [投資融合資料庫](/summaries/anchor_insights.md)
 
 ## Money DJ
-::: details 點擊展開集數列表 (15 集)
+::: details 點擊展開集數列表 (16 集)
+- [EP475](/summaries/Money%20DJEP475_summary.md)
 - [EP474](/summaries/Money%20DJEP474_summary.md)
 - [EP473](/summaries/Money%20DJEP473_summary.md)
 - [EP472](/summaries/Money%20DJEP472_summary.md)
