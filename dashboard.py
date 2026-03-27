@@ -444,85 +444,6 @@ def watcher_thread():
 # ===== 排程掃描線程 =====
 scheduler_status = {"running": False, "last_run": None, "logs": []}
 
-# 🦅 赤兔投資同步狀態（每 4 小時檢查一次）
-anchor_sync_status: dict = {"last_mtime": 0.0, "last_check_time": 0.0}
-ANCHOR_SYNC_INTERVAL = 4 * 60 * 60  # 4 小時（秒）
-
-
-def check_anchor_insights_sync():
-    """檢查 ~/.openclaw/workspace/memory/anchor_insights.md 是否有更新，有則同步到網站"""
-    import subprocess
-
-    anchor_source = Path.home() / ".openclaw/workspace/memory/anchor_insights.md"
-    anchor_target = DATA_DIR / "summaries" / "anchor_insights.md"
-
-    if not anchor_source.exists():
-        return  # 來源檔案不存在，跳過
-
-    # 檢查是否超過 4 小時
-    current_time = time.time()
-    last_check = anchor_sync_status.get("last_check_time", 0)
-    if current_time - last_check < ANCHOR_SYNC_INTERVAL:
-        return  # 還沒到 4 小時，跳過檢查
-
-    # 更新上次檢查時間
-    anchor_sync_status["last_check_time"] = current_time
-
-    current_mtime = anchor_source.stat().st_mtime
-
-    # 檢查是否有更新
-    if current_mtime == anchor_sync_status["last_mtime"]:
-        return  # 沒有更新
-
-    # 檢查目標檔案是否需要更新
-    if anchor_target.exists() and anchor_target.stat().st_mtime >= current_mtime:
-        anchor_sync_status["last_mtime"] = current_mtime
-        return  # 目標檔案已經是最新
-
-    add_scheduler_log("🦅 偵測到赤兔投資筆記更新，開始同步...")
-
-    # 確保目錄存在
-    anchor_target.parent.mkdir(parents=True, exist_ok=True)
-
-    # 複製檔案
-    shutil.copy2(anchor_source, anchor_target)
-    anchor_sync_status["last_mtime"] = current_mtime
-    add_scheduler_log("   📄 已複製到 data/summaries/", "success")
-
-    # 執行 sync-content.js 同步到網站
-    try:
-        site_script = Path(__file__).parent / "site" / "scripts" / "sync-content.js"
-        if site_script.exists():
-            sync_result = subprocess.run(
-                ["node", str(site_script)],
-                cwd=Path(__file__).parent,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            if sync_result.returncode == 0:
-                add_scheduler_log("   📦 網站目錄已同步", "success")
-            else:
-                add_scheduler_log(f"   ⚠️ 網站同步失敗：{sync_result.stderr}", "warning")
-                return
-    except Exception as e:
-        add_scheduler_log(f"   ⚠️ 同步腳本錯誤：{str(e)}", "warning")
-        return
-
-    # 推送到 Git
-    try:
-        git_pub = GitPublisher()
-        if git_pub.enabled:
-            git_pub._run_git("add", "data/summaries/anchor_insights.md")
-            git_pub._run_git("add", "site/")
-            git_pub._run_git("commit", "-m", "🦅 更新赤兔投資筆記")
-            push_ok, push_msg = git_pub._run_git("push")
-            if push_ok:
-                add_scheduler_log("   🚀 Git 已推送", "success")
-            else:
-                add_scheduler_log(f"   ⚠️ Git 推送失敗：{push_msg}", "warning")
-    except Exception as e:
-        add_scheduler_log(f"   ⚠️ Git 錯誤：{str(e)}", "warning")
 
 
 def add_scheduler_log(msg, level="info"):
@@ -577,12 +498,6 @@ def scheduler_thread():
                         add_scheduler_log(f"❌ 掃描錯誤：{str(e)}", "error")
 
             time.sleep(30)  # 每 30 秒檢查一次
-
-            # 🦅 檢查赤兔投資筆記是否有更新
-            try:
-                check_anchor_insights_sync()
-            except Exception as e:
-                add_scheduler_log(f"⚠️ 赤兔投資同步錯誤：{str(e)}", "warning")
 
             # 檢查並處理待傳佇列（SMB 重連後自動補傳）
             try:
